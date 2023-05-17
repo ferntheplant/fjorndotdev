@@ -16,7 +16,11 @@ A social contract is an implicit agreement between individuals participating in 
 
 At work the social contract stipulates that all parties behave professionally since that behavior enables everybody to work their best. But at a party the contract asks for participants to be less professional and more casual since stiff behavior is less conducive to having fun or relaxing. Even in adversarial situations like a negotiation a social contract is important because even though each party is trying to negotiate in their sole interest, both parties want the negotiation to go smoothly and as such expect the counter party to behave cordially.
 
-## Why we play competitive games
+## What happens the contract is broken?
+
+In most 'normal' social situations violating the social contract often leads to shame and exclusion. By threatening to remove violators from the situation, parties that still uphold the contract hope to incentivize conformance and cooperation. I'd be remiss to not mention that often those with institutional power (reads white-cishet-men) get the privilage of defining social contracts leading to social norms that unfairly and unnecessarily exclude and shame the "out group".
+
+## Why do we play competitive games?
 
 The first step in designing a good contract is to understand what goals the contract aims to enforce. In the case of games clearly the main prioroity is to "have fun". But I think with competetive games like Valorant ranked queue there is a little more nuance. Competition is a strange thing - on the surface there's nothing fun about it. It's a cutthroat contest to find which party is the best at some specific task. Yet we're psychologically wired to find many competitions fun and exciting specifically because of the prospect of being deemed the best.
 
@@ -24,4 +28,4 @@ As such in team competitions I propose we assume that all parties enter a social
 
 ## Rules of competetive engagement
 
-asdf
+Our goal has 2 parts: have fun and maintain competetive integrity. I think we can all agree on basic rules of decency that promote social fun so we'll focus our studies on rules aimed at ensuring the contest results in the victory of the most skilled party.
