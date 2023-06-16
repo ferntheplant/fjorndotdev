@@ -12,13 +12,15 @@ There was a recent [post on r/VALORANT](https://www.reddit.com/r/VALORANT/commen
 
 ## What is a social contract?
 
-A social contract is an implicit agreement between individuals participating in some social activity. The agreement specifies acceptable behaviors that all parties follow to maintain basic social order. The social contract specifically tries to incentivize behavior _that helps all parties achieve some goal for the social interaction_. Usually parties enter a social interaction with compatible goals like have fun at a aprty or cooperate to get work done.
+A social contract is an implicit agreement between individuals participating in some social activity. The agreement specifies acceptable behaviors that all parties follow to maintain basic social order. The social contract specifically tries to incentivize behavior _that helps all parties achieve some goal for the social interaction_. Usually parties enter a social interaction with compatible goals like have fun at a party or cooperate to get work done.
 
-At work the social contract stipulates that all parties behave professionally since that behavior enables everybody to work their best. But at a party the contract asks for participants to be less professional and more casual since stiff behavior is less conducive to having fun or relaxing. Even in adversarial situations like a negotiation a social contract is important because even though each party is trying to negotiate in their sole interest, both parties want the negotiation to go smoothly and as such expect the counter party to behave cordially.
+At work the social contract stipulates that all parties behave professionally since that behavior enables everybody to work their best. But at a party the contract asks for participants to be less professional and more casual as stiff behavior is less conducive to having fun or relaxing. Even in adversarial situations like a negotiation a social contract is important because even though each party is trying to negotiate in their sole interest, both parties want the negotiation to go smoothly and as such expect the counter party to behave cordially.
 
 ## What happens the contract is broken?
 
-In most 'normal' social situations violating the social contract often leads to shame and exclusion. By threatening to remove violators from the situation, parties that still uphold the contract hope to incentivize conformance and cooperation. I'd be remiss to not mention that often those with institutional power (reads white-cishet-men) get the privilage of defining social contracts leading to social norms that unfairly and unnecessarily exclude and shame the "out group".
+In most 'normal' social situations violating the social contract often leads to shame and exclusion. By threatening to remove violators from the situation, parties that still uphold the contract hope to incentivize conformance and cooperation. I'd be remiss to not mention that often those with institutional power (reads white-cishet-men) get the privilage of defining social contracts leading to social norms that often unfairly shame and exclude minority groups.
+
+However removing violators is not always possible; sometimes you're just stuck with them. In ranked Valorant games  players are locked into the match until one team wins or the other surrenders. So if a bad actor were to violate the social contract and ruin the experience then remaining players are left with no recourse for the duration of the match.
 
 ## Why do we play competitive games?
 
