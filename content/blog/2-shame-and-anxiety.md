@@ -12,17 +12,17 @@ This simple statement makes up probably 90% of my internal monologue. "Fuck" of 
 
 ## What is shame?
 
-I went through 5 therapists and 3 psychiatrists before finally putting a name to the emotion that's haunted me my whole life. It turns out my arch nemesis wasn't depression or anxiety; it was shame. It took me so long to make this life-changing realization because I failed to grasp the full breadth of the emotion. I used to think shame was a very specific, and useful, emotion meant to drive people away from social taboos (though obviously misued to tormet the "out" crowd like LGBTQ+, BIPOC, etc).
+I went through 5 therapists and 3 psychiatrists before finally putting a name to the emotion that's haunted me my whole life. It turns out my arch nemesis wasn't depression or anxiety; it was shame. It took me so long to make this life-changing realization because I failed to grasp the full breadth of the emotion. I used to think shame was a very specific, and useful, emotion meant to drive people away from social taboos (though obviously misused to torment the "out" crowd like LGBTQ+, BIPOC, etc.).
 
 But, as my therapist so wonderfully put it, shame is the feeling of wanting to run away and hide from others. It's when you have a horrible pimple and refuse to show your face at school. When you don't do so hot on a test and hesitate to share your score with your friends.
 
 **Shame is about shutting the world out.**
 
-I often feel "bad" to the point of being incapacitated and unable to act. Previous doctors diagnosed depression but I now know in many instances it was actually shame. Shame so extreme I was shutting out everything around me and going into hiding. I was so worried about how others would judge me my mind and body shut down to try to avoid interacting with or even thinking about others at all.
+I often feel "bad" to the point of being incapacitated and unable to act. Previous doctors diagnosed depression, but I now know in many instances it was actually shame. Shame so extreme I was shutting out everything around me and going into hiding. I was so worried about how others would judge me my mind and body shut down to try to avoid interacting with or even thinking about others at all.
 
 ## Shame is not anxiety
 
-Notice in that last sentence I said I was "worried about how others would judge me." So is shame not then some advanced form of anxiety? The crucial distinction is that _anxiety is a stimulating emotion_. Anxiety gets your heart pumping and your mind racing. Anxiety is the natural response to perceived threat or danger designed to get us to safety. And in many cases shame can lead to or be caused by anxiety. The mind can trick the body into seeing the judgement of others as a legitimate threat and cause severe anxiety or panic. And one way to avoid this perceieved danger might be to shut others out and hide.
+Notice in that last sentence I said I was "worried about how others would judge me." So is shame not then some advanced form of anxiety? The crucial distinction is that _anxiety is a stimulating emotion_. Anxiety gets your heart pumping and your mind racing. Anxiety is the natural response to perceived threat or danger designed to get us to safety. And in many cases shame can lead to or be caused by anxiety. The mind can trick the body into seeing the judgement of others as a legitimate threat and cause severe anxiety or panic. And one way to avoid this perceived danger might be to shut others out and hide.
 
 However, in my experience, _shame is a distinctly depressive emotion_. When I'm incapacitated by a "shame-attack" (to borrow the vocabulary of anxiety) it's not because my mind is racing at 100mph thinking about all the bad things that could happen - it's because my brain is turning off and refusing to cooperate. I go so deep into hiding I shut myself out of my own mind because I know how harsh my self-judgement can be.
 
