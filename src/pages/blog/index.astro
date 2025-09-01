@@ -1,0 +1,39 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/src/layouts/BaseLayout.astro";
+import Header from "@/src/components/Header.astro";
+import Link from "@/src/components/Link.astro";
+import { formatDate } from "@/src/lib/utils";
+
+const title = "Blog | Hi This Is Fjorn";
+const description = "My thoughts on various topics";
+
+const blogPosts = (await getCollection("blog"))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonicalUrl="https://fjorn.dev/blog/"
+  type="article"
+>
+  <Header />
+  <main class="border-primary border p-8">
+    <p class="pb-6">Maybe one day I'll write some blog posts here.</p>
+
+    <ul class="flex list-none flex-col space-y-2">
+      {
+        blogPosts.map((post) => (
+          <li class="flex flex-row items-center gap-4">
+            <time datetime={post.data.pubDate.toISOString()} class="opacity-70">
+              {formatDate(post.data.pubDate)}
+            </time>
+            <Link href={`/blog/${post.id}`}>{post.data.title}</Link>
+          </li>
+        ))
+      }
+    </ul>
+  </main>
+</BaseLayout>

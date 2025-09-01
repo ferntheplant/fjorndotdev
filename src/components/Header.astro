@@ -38,7 +38,10 @@ const navItems = [
 
     navLinks.forEach((link) => {
       const href = link.getAttribute("data-href");
-      if (href === currentPath) {
+      if (
+        href === currentPath ||
+        (href === "/blog/" && currentPath.startsWith("/blog/"))
+      ) {
         link.classList.add("!border-b-[6px]");
       } else {
         link.classList.remove("!border-b-[6px]");

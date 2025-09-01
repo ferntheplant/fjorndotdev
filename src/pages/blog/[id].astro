@@ -1,0 +1,243 @@
+---
+import Header from "@/src/components/Header.astro";
+import BaseLayout from "@/src/layouts/BaseLayout.astro";
+import { formatDate } from "@/src/lib/utils";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  return posts.map((post) => ({
+    params: { id: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+console.log(post.data.pubDate);
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  canonicalUrl="https://fjorn.dev/blog/"
+  type="article"
+>
+  <Header />
+  <main class="border-primary border p-8">
+    <h1 class="pb-4 text-3xl font-bold">{post.data.title}</h1>
+    <time datetime={post.data.pubDate.toISOString()} class="pb-4 opacity-70">
+      {formatDate(post.data.pubDate)}
+    </time>
+    <hr
+      class="border-foreground my-4 border-0 border-b-1 border-dashed opacity-70"
+    />
+    <div class="markdown">
+      <Content />
+    </div>
+  </main>
+</BaseLayout>
+
+<style is:global>
+  /* Hide the h1 since we already have the title above */
+  .markdown h1 {
+    display: none !important;
+  }
+
+  /* Basic typography styling for MDX content */
+  .markdown {
+    line-height: 1.7;
+    color: var(--foreground);
+  }
+
+  .markdown h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .markdown h2:hover {
+    color: var(--background);
+    background-color: var(--primary);
+  }
+
+  .markdown h2::before {
+    content: "# ";
+    color: var(--primary);
+  }
+
+  .markdown h2:hover::before {
+    content: "# ";
+    background-color: var(--primary);
+    color: var(--background);
+  }
+
+  .markdown h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .markdown h3:hover {
+    color: var(--background);
+    background-color: var(--primary);
+  }
+
+  .markdown h3::before {
+    content: "## ";
+    color: var(--primary);
+  }
+
+  .markdown h3:hover::before {
+    content: "## ";
+    background-color: var(--primary);
+    color: var(--background);
+  }
+
+  .markdown h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .markdown h4:hover {
+    color: var(--background);
+    background-color: var(--primary);
+  }
+
+  .markdown h4::before {
+    content: "### ";
+    color: var(--primary);
+  }
+
+  .markdown h4:hover::before {
+    content: "### ";
+    background-color: var(--primary);
+    color: var(--background);
+  }
+
+  .markdown h5 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .markdown h2,
+  h3,
+  h4,
+  h5 {
+    width: fit-content;
+  }
+
+  .markdown h2 a,
+  .markdown h3 a,
+  .markdown h4 a,
+  .markdown h5 a {
+    border-bottom: 0;
+  }
+
+  .markdown p {
+    margin-bottom: 1rem;
+  }
+
+  .markdown ul,
+  .markdown ol {
+    padding-left: 1.5rem;
+  }
+
+  .markdown ul {
+    list-style-type: disc;
+  }
+
+  .markdown ul ul {
+    list-style-type: circle;
+  }
+
+  .markdown ul ul ul {
+    list-style-type: square;
+  }
+
+  .markdown ol {
+    list-style-type: decimal;
+  }
+
+  .markdown ol ol {
+    list-style-type: lower-alpha;
+  }
+
+  .markdown ol ol ol {
+    list-style-type: lower-roman;
+  }
+
+  .markdown li {
+  }
+
+  .markdown a {
+    border-bottom: 3px solid var(--primary);
+  }
+
+  .markdown a:hover {
+    color: var(--background);
+    background-color: var(--primary);
+  }
+
+  .markdown img {
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+  }
+
+  /* ---------- need to confirm --------------- */
+
+  .markdown blockquote {
+    border-left: 4px solid var(--primary);
+    padding-left: 1rem;
+    font-style: italic;
+    margin: 1rem 0;
+    color: var(--muted-foreground);
+  }
+
+  .markdown code {
+    background-color: var(--muted);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-family: "Roboto Mono Variable", monospace;
+    color: var(--foreground);
+  }
+
+  .markdown pre {
+    background-color: var(--muted);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  .markdown pre code {
+    background-color: transparent;
+    padding: 0;
+  }
+
+  .markdown table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border);
+    margin: 1rem 0;
+  }
+
+  .markdown th,
+  .markdown td {
+    border: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    text-align: left;
+  }
+
+  .markdown th {
+    background-color: var(--muted);
+    font-weight: 600;
+  }
+</style>

@@ -3,6 +3,7 @@ import BaseLayout from "@/src/layouts/BaseLayout.astro";
 import Header from "@/src/components/Header.astro";
 import ReadingListIcon from "@/src/components/ReadingListIcon.astro";
 import Link from "@/src/components/Link.astro";
+import { formatDate } from "@/src/lib/utils";
 
 const title = "Good | Hi This Is Fjorn";
 const description = "Cool stuff I've consumed";
@@ -64,16 +65,6 @@ const readingList: ReadingItem[] = [
     url: "https://words.filippo.io/professional-maintainers/",
   },
 ];
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  const options: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-  };
-  return date.toLocaleDateString("en-US", options);
-}
 ---
 
 <BaseLayout
