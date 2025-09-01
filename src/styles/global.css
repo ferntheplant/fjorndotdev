@@ -15,8 +15,8 @@
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  --muted: oklch(0.546 0.1102 84.59); /* was --code-background-color #8e6a06 */
+  --muted-foreground: oklch(1 0 0); /* was --code-text-color #ffffff */
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
@@ -52,8 +52,10 @@
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
+  --muted: oklch(
+    0.8017 0.1633 83.53 / 26%
+  ); /* was --code-background-color #22222 */
+  --muted-foreground: oklch(1 0 0); /* was --code-text-color #ffffff */
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
@@ -120,16 +122,15 @@
     @apply border-border outline-ring/50 text-foreground;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground selection:bg-foreground selection:text-background;
     font-family: "Roboto Mono Variable", monospace;
   }
 }
 
-html.dark .shiki,
-html.dark .shiki span {
+html.dark .astro-code,
+html.dark .astro-code span {
   color: var(--shiki-dark) !important;
   background-color: var(--shiki-dark-bg) !important;
-  /* Optional, if you also want font styles */
   font-style: var(--shiki-dark-font-style) !important;
   font-weight: var(--shiki-dark-font-weight) !important;
   text-decoration: var(--shiki-dark-text-decoration) !important;

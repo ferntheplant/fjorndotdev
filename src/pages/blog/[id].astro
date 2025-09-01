@@ -38,7 +38,64 @@ console.log(post.data.pubDate);
   </main>
 </BaseLayout>
 
+<script is:inline>
+  addEventListener("click", (e) => {
+    const btn = e.target.closest("button.footnote-ref[data-fn-id]");
+    if (!btn) return;
+    const id = btn.getAttribute("data-fn-id");
+    const controls = btn.getAttribute("aria-controls");
+    if (!controls) return;
+
+    // Find the inline aside that immediately follows the block
+    const block = btn.closest("p,li,blockquote,figure,div,section,article");
+    const aside = block?.nextElementSibling;
+    if (!aside || aside.id !== controls) return;
+
+    const isOpen = aside.hasAttribute("hidden") ? false : true;
+    if (isOpen) {
+      aside.setAttribute("hidden", "");
+      btn.setAttribute("aria-expanded", "false");
+    } else {
+      aside.removeAttribute("hidden");
+      btn.setAttribute("aria-expanded", "true");
+      // Optional: keep context; do not jump. Gentle nudge if off-screen:
+      const rect = aside.getBoundingClientRect();
+      const vh = Math.max(
+        document.documentElement.clientHeight || 0,
+        window.innerHeight || 0,
+      );
+      if (rect.top < 0 || rect.bottom > vh) {
+        aside.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+    }
+  });
+</script>
+
 <style is:global>
+  .footnote-inline {
+    padding: 0.75rem;
+    border-left: 3px solid var(--primary);
+  }
+  .footnote-inline p {
+    color: color-mix(in oklch, var(--foreground) 70%, transparent);
+    font-size: 0.85em;
+    margin: 0 !important;
+  }
+  .footnotes {
+    display: none;
+  } /* or your visually-hidden utility */
+  .footnote-ref {
+    all: unset;
+    cursor: pointer;
+  }
+  sup {
+    border-bottom: 3px solid var(--primary);
+  }
+  sup:hover {
+    color: var(--background);
+    background-color: var(--primary);
+  }
+
   /* Hide the h1 since we already have the title above */
   .markdown h1 {
     display: none !important;
@@ -190,9 +247,24 @@ console.log(post.data.pubDate);
     margin: 1rem 0;
   }
 
+  .markdown pre {
+    padding: 1rem;
+    border-radius: 0.25rem;
+    border: 1px solid var(--foreground);
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+
+  .markdown code:not(pre code) {
+    background-color: var(--muted);
+    color: var(--muted-foreground);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+  }
+
   /*
-    TODO: selection hightlights, code blocks, code fence (shiki)
-    also blockquote and table
+    TODO: blockquote and table
   */
 
   .markdown blockquote {

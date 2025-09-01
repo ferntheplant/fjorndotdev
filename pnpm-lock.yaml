@@ -64,6 +64,9 @@ importers:
       rehype-slug:
         specifier: ^6.0.0
         version: 6.0.0
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
       remark-math:
         specifier: ^6.0.0
         version: 6.0.0
@@ -76,6 +79,9 @@ importers:
       tailwindcss:
         specifier: ^4.1.12
         version: 4.1.12
+      unist-util-visit-parents:
+        specifier: ^6.0.1
+        version: 6.0.1
     devDependencies:
       "@typescript-eslint/parser":
         specifier: ^8.41.0

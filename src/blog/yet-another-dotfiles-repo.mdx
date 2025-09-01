@@ -15,7 +15,25 @@ My dotfiles repo is architected around using [`stow`](https://www.gnu.org/softwa
 
 ### Directory Layout
 
-```plaintext
+```typescript
+type DotfilesRepo = {
+  name: string;
+  description: string;
+  url: string;
+  number: number;
+};
+
+export function getDotfilesRepo(): DotfilesRepo {
+  return {
+    name: "dotfiles",
+    description: "My dotfiles repo",
+    url: "https://github.com/ferntheplant/dotfiles",
+    number: 1234,
+  };
+}
+```
+
+```text
 /home/fjorn/dotfiles
 ├── nvim
 │  └── .config
@@ -36,9 +54,11 @@ My dotfiles repo is architected around using [`stow`](https://www.gnu.org/softwa
 
 Starting from the _bottom_ we have our `zsh` directory that contains dotfiles for configuring our shell, `zsh`. By default, when we use `stow` on a directory it symlinks all files within that directory into the current _parent_ directory. So by running `stow zsh` from `~/dotfiles` we create a symlink in the home directory to `.zshrc` in the dotfiles directory.
 
-This trick even works on nested directories like those for `starship` and `nvim`. With the `--no-folding` flag `stow` will create subdirectories like `.config/nvim/lua` and symlink the nested files within the newly created subdirectories. After running `stow --no-folding` on each directory in my dotfiles folder my home directory might look something like this:
+This trick even works on nested directories like those for `starship` and `nvim`. With the `--no-folding` flag `stow` will create subdirectories like `.config/nvim/lua` and symlink the nested files within the newly created subdirectories. After running `stow --no-folding` on each directory in my dotfiles folder my home directory might look something like this [^1]:
 
-```plaintext
+[^1]: This is a slightly simplified version of my home directory.
+
+```text
 /home/fjorn
 ├── .config
 │  ├── nvim
