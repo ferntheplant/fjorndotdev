@@ -1,0 +1,50 @@
+---
+import { cn } from "@/src/lib/utils";
+import { Sun, Moon } from "@lucide/astro";
+import { Button } from "@/src/components/ui/button";
+
+type Props = {
+  className?: string;
+  size?: number;
+};
+
+const { className, size = 16 } = Astro.props;
+---
+
+<Button
+  id="theme-toggle"
+  aria-label="Toggle theme"
+  variant="ghost"
+  className={cn(
+    "text-foreground hover:text-foreground cursor-pointer bg-transparent hover:bg-transparent [&_svg]:!size-auto",
+    className,
+  )}
+>
+  <Sun
+    class="scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90"
+    size={size}
+  />
+  <Moon
+    class="absolute scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0"
+    size={size}
+  />
+  <span class="sr-only">Toggle theme</span>
+</Button>
+
+<script>
+  const themeToggle = document.getElementById("theme-toggle");
+
+  if (themeToggle) {
+    themeToggle.addEventListener("click", () => {
+      const isDark = document.documentElement.classList.contains("dark");
+
+      if (isDark) {
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("theme", "light");
+      } else {
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("theme", "dark");
+      }
+    });
+  }
+</script>

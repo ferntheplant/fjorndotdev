@@ -5,13 +5,13 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --background: oklch(0.9824 0.013 71.33); /* was --background-color: #fff8f0 */
+  --foreground: oklch(0.256 0.0217 47.85); /* was --text-color: #2c201a */
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --primary: oklch(0.805 0.1291 55.22); /* was --main-color: #ffa86a */
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -41,13 +41,14 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
+  /* Shadcn dark colors - mapped from original website */
+  --background: oklch(0.2686 0 0); /* was --background-color: #262626 */
+  --foreground: oklch(0.9219 0 0); /* was --text-color: #e5e5e5 */
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
+  --primary: oklch(0.805 0.1291 55.22); /* was --main-color: #ffa86a */
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
@@ -116,7 +117,7 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/50 text-foreground;
     font-family: "Roboto Mono Variable", monospace;
   }
   body {

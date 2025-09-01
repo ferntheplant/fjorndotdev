@@ -1,10 +1,63 @@
 ---
 import BaseLayout from "@/src/layouts/BaseLayout.astro";
+import Header from "@/src/components/Header.astro";
+import Footer from "@/src/components/Footer.astro";
+import Link from "@/src/components/Link.astro";
 
 const title = "Hi This Is Fjorn";
 const description = "Hi This Is Fjorn";
 ---
 
 <BaseLayout title={title} description={description}>
-  <h1>Hi This Is Fjorn</h1>
+  <Header />
+
+  <main class="border-primary border p-8">
+    <p class="mt-0">
+      I'm fern, a vascular plant known for my fractal fronds.
+      <br />
+      Here are a few fun facts about this polypodiopsida:
+    </p>
+    <ul class="list-none pt-2 pl-0">
+      <li class="relative mt-2 mb-2 pl-6">
+        <strong>Deft.</strong> One might say I do things <em>Deftly</em>
+      </li>
+      <li class="relative mt-2 mb-2 pl-6">
+        <strong>Engineer.</strong> I generally enjoy making computers go brrr
+      </li>
+      <li class="relative mt-2 mb-2 pl-6">
+        <strong>Emo.</strong> MCR will never go out of style
+      </li>
+      <li class="relative mt-2 mb-2 pl-6">
+        <strong>Zero.</strong> Indexes should start at the first natural number
+      </li>
+      <li class="relative mt-2 mb-2 pl-6">
+        <strong>Nerdy.</strong> I, unfortunately, love league of legends
+      </li>
+      <li class="relative mt-2 mb-2 pl-6">
+        <strong>Urbanite.</strong> My aesthetic is <Link
+          href="https://www.reddit.com/r/fuckcars/"
+        >
+          r/fuckcars
+        </Link>
+      </li>
+      <li class="relative mt-2 mb-2 pl-6">
+        <strong>Thriving.</strong> Having time to set up this blog bodes well for
+        me
+      </li>
+      <li class="relative mt-2 mb-2 pl-6">
+        <strong>Zesty.</strong> Big fan of citrus
+      </li>
+    </ul>
+  </main>
+
+  <Footer />
 </BaseLayout>
+
+<style>
+  /* Custom arrow styling for list items */
+  ul li::before {
+    position: absolute;
+    left: 0;
+    content: "»";
+  }
+</style>

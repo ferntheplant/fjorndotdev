@@ -1,12 +1,21 @@
 ---
 import "@/src/styles/global.css";
 
-type Props = {
+export interface Props {
   title: string;
   description: string;
-};
+  canonicalUrl?: string;
+  ogImage?: string;
+  type?: "website" | "article";
+}
 
-const { title, description } = Astro.props;
+const {
+  title,
+  description,
+  canonicalUrl = "https://fjorn.dev",
+  ogImage = "https://bear-images.sfo2.cdn.digitaloceanspaces.com/herman-1683556668-0.png",
+  type = "website",
+} = Astro.props;
 ---
 
 <script is:inline>
@@ -36,13 +45,51 @@ const { title, description } = Astro.props;
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5"
+    />
     <meta name="generator" content={Astro.generator} />
+
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Primary Meta Tags -->
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:site_name" content="Hi This Is Fjorn" />
+    <meta property="og:title" content={title} />
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary" />
+    <meta property="twitter:url" content={canonicalUrl} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={ogImage} />
+
+    <!-- Microdata -->
+    <script type="application/ld+json">
+      {
+        "@context": "http://schema.org",
+        "@type": "{type}",
+        "name": "{title}",
+        "headline": "{title}",
+        "url": "{canonicalUrl}",
+        "description": "{description}",
+        "image": "{ogImage}"
+      }
+    </script>
   </head>
-  <slot />
-
-
+  <body
+    class="bg-background text-foreground m-auto max-w-[720px] pt-10 text-left font-mono text-base leading-relaxed break-words transition-colors"
+  >
+    <slot />
+  </body>
 </html>

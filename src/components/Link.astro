@@ -1,0 +1,20 @@
+---
+import { cn } from "@/src/lib/utils";
+
+export interface Props {
+  href: string;
+  class?: string;
+  dataHref?: string;
+}
+
+const { href, class: className, dataHref } = Astro.props;
+---
+
+<a
+  href={href}
+  class={cn(
+    "border-b-[3px] border-primary hover:bg-primary hover:text-primary-foreground transition-colors",
+    className,
+  )}
+  data-href={dataHref}><slot /></a
+>

@@ -1,0 +1,17 @@
+---
+import { FileText, BookOpen, Youtube, Code } from "@lucide/astro";
+
+export interface Props {
+  type: "article" | "book" | "youtube" | "code";
+}
+
+const { type } = Astro.props;
+---
+
+{type === "article" && <FileText class="text-primary h-4 w-4" />}
+
+{type === "book" && <BookOpen class="text-primary h-4 w-4" />}
+
+{type === "youtube" && <Youtube class="text-primary h-4 w-4" />}
+
+{type === "code" && <Code class="text-primary h-4 w-4" />}

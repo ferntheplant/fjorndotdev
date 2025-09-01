@@ -1,0 +1,136 @@
+---
+import BaseLayout from "@/src/layouts/BaseLayout.astro";
+import Header from "@/src/components/Header.astro";
+import Footer from "@/src/components/Footer.astro";
+import ReadingListIcon from "@/src/components/ReadingListIcon.astro";
+
+const title = "Good | Hi This Is Fjorn";
+const description = "Cool stuff I've consumed";
+
+interface ReadingItem {
+  type: "article" | "book" | "youtube" | "code";
+  date: string;
+  title: string;
+  url: string;
+}
+
+const readingList: ReadingItem[] = [
+  {
+    type: "article",
+    date: "2024-08-07T04:00",
+    title: "Vegetal",
+    url: "https://sophie006liu.github.io/vegetal/",
+  },
+  {
+    type: "code",
+    date: "2024-04-17T04:00",
+    title: "DreamBerd",
+    url: "https://github.com/TodePond/DreamBerd",
+  },
+  {
+    type: "article",
+    date: "2024-04-15T04:00",
+    title: "1/0 = 0",
+    url: "https://www.hillelwayne.com/post/divide-by-zero/",
+  },
+  {
+    type: "article",
+    date: "2024-04-06T04:00",
+    title: "Shit Yourself",
+    url: "https://heydonworks.com/article/shit-yourself/",
+  },
+  {
+    type: "youtube",
+    date: "2024-04-03T04:00",
+    title: "How to make streets safer with just a brick",
+    url: "https://www.youtube.com/watch?v=8kP6R0clBGY",
+  },
+  {
+    type: "youtube",
+    date: "2024-03-29T04:00",
+    title: "Willy Wonka: Capitalism for Kids!",
+    url: "https://www.youtube.com/watch?v=0jbGyLayKjE",
+  },
+  {
+    type: "article",
+    date: "2024-03-29T04:00",
+    title: "Against SQL",
+    url: "https://www.scattered-thoughts.net/writing/against-sql",
+  },
+  {
+    type: "article",
+    date: "2024-03-27T04:00",
+    title: "Professional Maintainers: A Wake-Up Call",
+    url: "https://words.filippo.io/professional-maintainers/",
+  },
+];
+
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  const options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  };
+  return date.toLocaleDateString("en-US", options);
+}
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonicalUrl="https://fjorn.dev/good/"
+  type="article"
+>
+  <Header />
+
+  <main class="border-accent border p-[30px] leading-[1.6]">
+    <p class="mt-0">
+      I consume <em>a lot</em> of content on the internet. Not much of it is good.
+      I'll try to add the good stuff to this list.
+    </p>
+
+    <ul class="list-none pl-0">
+      {
+        readingList.map((item) => (
+          <li class="mb-[10px] flex">
+            <span class="leading-inherit absolute top-2 left-[-2em] w-8 text-center">
+              <ReadingListIcon type={item.type} />
+            </span>
+            <time
+              datetime={item.date}
+              class="flex-[0_0_130px] font-normal opacity-70"
+            >
+              {formatDate(item.date)}
+            </time>
+            <a
+              href={item.url}
+              class="text-foreground border-accent hover:bg-accent hover:text-accent-foreground border-b-[3px] font-mono no-underline transition-colors"
+            >
+              {item.title}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <!-- Comment showing the icon mapping -->
+    <!--
+    publish time
+    <time datetime="2024-03-27T04:00" />
+      - 04:00 for March - Nov (EDT)
+      - 05:00 for Nov - March (EST)
+
+    article
+      <span class="reading-list-icon"><i class="gg-file-document"></i></span>
+    book
+      <span class="reading-list-icon"><i class="gg-readme"></i></span>
+    youtube video
+      <span class="reading-list-icon"><i class="gg-youtube"></i></span>
+    code
+      <span class="reading-list-icon"><i class="gg-code"></i></span>
+    -->
+  </main>
+
+  <Footer />
+</BaseLayout>

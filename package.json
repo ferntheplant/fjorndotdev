@@ -18,8 +18,10 @@
   },
   "dependencies": {
     "@astrojs/react": "^4.3.0",
+    "@astrojs/vercel": "^8.2.7",
     "@fontsource-variable/roboto-mono": "^5.2.6",
     "@lucide/astro": "^0.542.0",
+    "@radix-ui/react-slot": "^1.2.3",
     "@tailwindcss/vite": "^4.1.12",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
