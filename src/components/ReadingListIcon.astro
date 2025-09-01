@@ -6,12 +6,15 @@ export interface Props {
 }
 
 const { type } = Astro.props;
+
+const iconMap = {
+  article: FileText,
+  book: BookOpen,
+  youtube: Youtube,
+  code: Code,
+};
+
+const IconComponent = iconMap[type];
 ---
 
-{type === "article" && <FileText class="text-primary h-4 w-4" />}
-
-{type === "book" && <BookOpen class="text-primary h-4 w-4" />}
-
-{type === "youtube" && <Youtube class="text-primary h-4 w-4" />}
-
-{type === "code" && <Code class="text-primary h-4 w-4" />}
+<IconComponent class="stroke-primary" />

@@ -1,8 +1,8 @@
 ---
 import BaseLayout from "@/src/layouts/BaseLayout.astro";
 import Header from "@/src/components/Header.astro";
-import Footer from "@/src/components/Footer.astro";
 import ReadingListIcon from "@/src/components/ReadingListIcon.astro";
+import Link from "@/src/components/Link.astro";
 
 const title = "Good | Hi This Is Fjorn";
 const description = "Cool stuff I've consumed";
@@ -83,54 +83,24 @@ function formatDate(dateString: string): string {
   type="article"
 >
   <Header />
-
-  <main class="border-accent border p-[30px] leading-[1.6]">
-    <p class="mt-0">
+  <main class="border-primary border p-8">
+    <p class="pb-6">
       I consume <em>a lot</em> of content on the internet. Not much of it is good.
       I'll try to add the good stuff to this list.
     </p>
 
-    <ul class="list-none pl-0">
+    <ul class="flex list-none flex-col space-y-4">
       {
         readingList.map((item) => (
-          <li class="mb-[10px] flex">
-            <span class="leading-inherit absolute top-2 left-[-2em] w-8 text-center">
-              <ReadingListIcon type={item.type} />
-            </span>
-            <time
-              datetime={item.date}
-              class="flex-[0_0_130px] font-normal opacity-70"
-            >
+          <li class="flex flex-row items-center gap-4">
+            <ReadingListIcon type={item.type} />
+            <time datetime={item.date} class="opacity-70">
               {formatDate(item.date)}
             </time>
-            <a
-              href={item.url}
-              class="text-foreground border-accent hover:bg-accent hover:text-accent-foreground border-b-[3px] font-mono no-underline transition-colors"
-            >
-              {item.title}
-            </a>
+            <Link href={item.url}>{item.title}</Link>
           </li>
         ))
       }
     </ul>
-
-    <!-- Comment showing the icon mapping -->
-    <!--
-    publish time
-    <time datetime="2024-03-27T04:00" />
-      - 04:00 for March - Nov (EDT)
-      - 05:00 for Nov - March (EST)
-
-    article
-      <span class="reading-list-icon"><i class="gg-file-document"></i></span>
-    book
-      <span class="reading-list-icon"><i class="gg-readme"></i></span>
-    youtube video
-      <span class="reading-list-icon"><i class="gg-youtube"></i></span>
-    code
-      <span class="reading-list-icon"><i class="gg-code"></i></span>
-    -->
   </main>
-
-  <Footer />
 </BaseLayout>
