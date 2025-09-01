@@ -1,0 +1,971 @@
+---
+
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5"
+    />
+
+    <title>Hi This Is Fjorn</title>
+    <link rel="canonical" href="https://fjorn.dev" />
+
+    <meta name="fjorn" content="look-for-the-bear-necessities" />
+
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Hi This Is Fjorn" />
+    <meta name="description" content="Hi This Is Fjorn" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:site_name" content="Hi This Is Fjorn" />
+    <meta property="og:title" content="Hi This Is Fjorn" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://fjorn.dev" />
+    <meta property="og:description" content="Hi This Is Fjorn" />
+    <meta
+      property="og:image"
+      content="https://bear-images.sfo2.cdn.digitaloceanspaces.com/herman-1683556668-0.png"
+    />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary" />
+    <meta property="twitter:url" content="https://fjorn.dev" />
+    <meta property="twitter:title" content="Hi This Is Fjorn" />
+    <meta property="twitter:description" content="Hi This Is Fjorn" />
+    <meta
+      property="twitter:image"
+      content="https://bear-images.sfo2.cdn.digitaloceanspaces.com/herman-1683556668-0.png"
+    />
+
+    <!-- Microdata -->
+    <script type="application/ld+json">
+      {
+        "@context": "http://schema.org",
+        "@type": "website",
+        "name": "Hi This Is Fjorn",
+        "headline": "Hi This Is Fjorn",
+        "url": "https://fjorn.dev",
+        "description": "Hi This Is Fjorn",
+        "image": "https://bear-images.sfo2.cdn.digitaloceanspaces.com/herman-1683556668-0.png"
+      }
+    </script>
+    <link
+      rel="alternate"
+      type="application/atom+xml"
+      href="/feed/"
+      title="Hi This Is Fjorn"
+    />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      href="/feed/?type=rss"
+      title="Hi This Is Fjorn"
+    />
+
+    <script>
+      document.addEventListener("DOMContentLoaded", main);
+
+      function addSubscribeText() {
+        if (window.location.pathname !== "/blog/") {
+          return;
+        }
+        // Select the ul element with class "blog-posts"
+        var ulElement = document.querySelector("main ul.blog-posts");
+
+        // Create a new paragraph element
+        var paragraph = document.createElement("p");
+
+        var htmlContent = `You don&#39;t have to subscribe by <a href="/subscribe/">email</a> or <a href="/feed/">RSS</a>, but it&#39;d be a lot cooler if you did.`;
+
+        // Set HTML content of the paragraph
+        paragraph.innerHTML = htmlContent;
+
+        // Add inline CSS styling
+        paragraph.style.marginTop = "0";
+
+        if (ulElement) {
+          ulElement.parentNode.insertBefore(paragraph, ulElement);
+        } else {
+          console.error(
+            "The ul element with class 'blog-posts' within <main> was not found.",
+          );
+        }
+      }
+
+      function highlightNavAndSetTimes() {
+        // active selected page in nav
+        var navLinks = document.querySelectorAll("nav a");
+
+        var currentSlug = window.location.pathname;
+
+        let setActive = false;
+        let blogLink = null;
+        navLinks.forEach(function (link) {
+          // Check if the href matches the current slug
+          if (link.getAttribute("href") === currentSlug) {
+            link.classList.add("active");
+            setActive = true;
+          }
+          if (link.getAttribute("href") === "/blog/") {
+            blogLink = link;
+          }
+        });
+        if (!setActive && blogLink) {
+          blogLink.classList.add("active");
+        }
+
+        // nicely formatted times in lists
+        var timeTags = document.querySelectorAll("time");
+
+        timeTags.forEach(function (timeTag) {
+          var datetime = timeTag.getAttribute("datetime");
+          var date = new Date(datetime);
+          var formattedDate = formatDate(date);
+          timeTag.innerHTML = formattedDate;
+        });
+
+        function formatDate(date) {
+          var options = { year: "numeric", month: "short", day: "2-digit" };
+          return date.toLocaleDateString("en-US", options);
+        }
+      }
+
+      function clickableHeadings() {
+        var headings = document.querySelectorAll("h2, h3, h4, h5, h6");
+        headings.forEach((heading) => {
+          heading.addEventListener("click", () => {
+            let url = window.location.pathname;
+            url += `#${heading.getAttribute("id")}`;
+            history.pushState({}, "", url);
+          });
+        });
+      }
+
+      function detectColorScheme() {
+        var theme = "light"; //default to light
+
+        //local storage is used to override OS theme settings
+        if (localStorage.getItem("theme")) {
+          if (localStorage.getItem("theme") == "dark") {
+            var theme = "dark";
+          }
+        } else if (!window.matchMedia) {
+          //matchMedia method not supported
+          return false;
+        } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          //OS theme setting detected as dark
+          var theme = "dark";
+        }
+
+        //dark theme preferred, set document with a `data-theme` attribute
+        if (theme == "dark") {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      }
+
+      //function that changes the theme, and sets a localStorage variable to track the theme between page loads
+      function switchTheme(e) {
+        const currentTheme =
+          document.documentElement.getAttribute("data-theme");
+        if (currentTheme === "light" || currentTheme === null) {
+          localStorage.setItem("theme", "dark");
+          document.documentElement.setAttribute("data-theme", "dark");
+        } else {
+          localStorage.setItem("theme", "light");
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      }
+
+      function fromHTML(html, trim = true) {
+        // Process the HTML string.
+        html = trim ? html.trim() : html;
+        if (!html) return null;
+
+        // Then set up a new template element.
+        const template = document.createElement("template");
+        template.innerHTML = html;
+        const result = template.content.children;
+
+        // Then return either an HTMLElement or HTMLCollection,
+        // based on whether the input HTML had one or more roots.
+        if (result.length === 1) return result[0];
+        return result;
+      }
+
+      function addToggler() {
+        const html = `<div class="toggle">
+  <div class="sun-div">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" data-slot="icon"
+      class="sun-svg">
+      <path
+        d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59ZM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75ZM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1 0-1.061 1.06l1.59 1.591ZM12 18a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18ZM7.758 17.303a.75.75 0 0 0-1.061-1.06l-1.591 1.59a.75.75 0 0 0 1.06 1.061l1.591-1.59ZM6 12a.75.75 0 0 1-.75.75H3a.75.75 0 0 1 0-1.5h2.25A.75.75 0 0 1 6 12ZM6.697 7.757a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 0 0-1.061 1.06l1.59 1.591Z">
+      </path>
+    </svg>
+  </div>
+  <div class="moon-div">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" data-slot="icon"
+      class="moon-svg">
+      <path fill-rule="evenodd"
+        d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9 8.97 8.97 0 0 0 3.463-.69.75.75 0 0 1 .981.98 10.503 10.503 0 0 1-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 0 1 .818.162Z"
+        clip-rule="evenodd">
+      </path>
+    </svg>
+  </div>
+</div>`;
+        const div = fromHTML(html);
+        div.addEventListener("click", switchTheme);
+        const header = document.querySelector("header");
+        const lastChild = header.lastElementChild;
+        header.insertBefore(div, lastChild);
+      }
+
+      function main() {
+        addSubscribeText();
+        highlightNavAndSetTimes();
+        clickableHeadings();
+        detectColorScheme();
+        addToggler();
+      }
+    </script>
+
+    <link
+      rel="shortcut icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Ctext%20y='.9em'%20font-size='90'%3E🌿%3C/text%3E%3C/svg%3E"
+    />
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap");
+
+      :root {
+        --width: 720px;
+        --font-main: "Roboto Mono", monospace;
+        --font-secondary: "Roboto Mono", monospace;
+        --font-scale: 1em;
+        --link-color: #339af0;
+        --visited-color: #232333;
+        --blockquote-color: #222;
+        --main-color: #ffa86a;
+
+        --background-color: #fff8f0;
+        --heading-color: #000;
+        --text-color: #2c201a;
+        --code-background-color: #8e6a06;
+        --code-color: #fff;
+        --code-block-background-color: #222;
+        --code-block-color: #f2f2f2;
+      }
+
+      [data-theme="dark"] {
+        --background-color: #262626;
+        --heading-color: #ffffff;
+        --text-color: #e5e5e5;
+        --code-background-color: rgba(240, 179, 10, 0.26);
+        --code-color: #fff;
+        --code-block-background-color: #f2f2f2;
+        --code-block-color: #222;
+
+        .sun-div {
+          display: inline-flex;
+        }
+        .sun-svg {
+          color: #fff8f0;
+        }
+        .moon-div {
+          display: none;
+        }
+        .moon-svg {
+          color: white;
+        }
+      }
+
+      .gg-file-document {
+        box-sizing: border-box;
+        position: relative;
+        display: block;
+        transform: scale(var(--ggs, 1));
+        width: 16px;
+        height: 16px;
+        border: 2px solid transparent;
+        border-right: 0;
+        border-top: 0;
+        box-shadow: 0 0 0 2px;
+        border-radius: 1px;
+        border-top-right-radius: 4px;
+        overflow: hidden;
+        color: var(--main-color);
+      }
+
+      .gg-file-document::after,
+      .gg-file-document::before {
+        content: "";
+        display: block;
+        box-sizing: border-box;
+        position: absolute;
+      }
+
+      .gg-file-document::before {
+        background: currentColor;
+        box-shadow:
+          0 4px 0,
+          -6px -4px 0;
+        left: 0;
+        width: 10px;
+        height: 2px;
+        top: 8px;
+      }
+
+      .gg-file-document::after {
+        width: 6px;
+        height: 6px;
+        border-left: 2px solid;
+        border-bottom: 2px solid;
+        right: -1px;
+        top: -1px;
+      }
+
+      .gg-readme {
+        display: block;
+        position: relative;
+        box-sizing: border-box;
+        transform: scale(var(--ggs, 1));
+        width: 2px;
+        height: 17px;
+        border-bottom: 4px solid;
+        border-radius: 4px;
+        color: var(--main-color);
+        left: 8px;
+      }
+
+      .gg-readme::after,
+      .gg-readme::before {
+        content: "";
+        display: block;
+        position: absolute;
+        box-sizing: border-box;
+        width: 8px;
+        height: 12px;
+        box-shadow: 0 0 0 2px;
+        border-radius: 1px;
+        bottom: -1px;
+        background:
+          linear-gradient(to left, currentColor 4px, transparent 0) no-repeat
+            center 5px/4px 2px,
+          linear-gradient(to left, currentColor 4px, transparent 0) no-repeat
+            center 2px/4px 2px,
+          linear-gradient(to left, currentColor 4px, transparent 0) no-repeat
+            center 8px/4px 2px;
+      }
+
+      .gg-readme::before {
+        border-top-right-radius: 3px;
+        left: -8px;
+      }
+
+      .gg-readme::after {
+        border-top-left-radius: 3px;
+        right: -8px;
+      }
+
+      .gg-youtube {
+        box-sizing: border-box;
+        position: relative;
+        display: block;
+        transform: scale(var(--ggs, 1));
+        width: 16px;
+        height: 10px;
+        box-shadow: 0 0 0 2px;
+        border-radius: 15px 15px 15px 15px / 45px 45px 45px 45px;
+        color: var(--main-color);
+        left: 1px;
+        top: 2px;
+      }
+
+      .gg-youtube::before {
+        content: "";
+        display: block;
+        box-sizing: border-box;
+        position: absolute;
+        left: 7px;
+        top: 2px;
+        border-left: 4px solid currentColor;
+        border-top: 3px solid transparent;
+        border-bottom: 3px solid transparent;
+      }
+
+      .gg-code {
+        color: var(--main-color);
+        transform: scale(var(--ggs, 1));
+      }
+
+      .gg-code,
+      .gg-code::after,
+      .gg-code::before {
+        box-sizing: border-box;
+        position: relative;
+        display: block;
+        width: 8px;
+        height: 20px;
+      }
+
+      .gg-code::after,
+      .gg-code::before {
+        content: "";
+        position: absolute;
+        height: 8px;
+        border-left: 2px solid;
+        border-bottom: 2px solid;
+        transform: rotate(45deg) scaleY(1);
+        /*left: -4px;*/
+        top: 2px;
+      }
+
+      .gg-code::after {
+        transform: rotate(-45deg) scaleX(-1);
+        left: 8px;
+      }
+
+      /* ---------------------------------------------------------------------- */
+
+      pre {
+        background-color: var(--code-block-background-color);
+        color: var(--code-block-color);
+      }
+
+      pre::selection {
+        color: var(--code-block-background-color);
+        background: var(--code-block-color);
+      }
+
+      pre::-moz-selection {
+        color: var(--code-block-background-color);
+        background: var(--code-block-color);
+      }
+
+      body {
+        font-family: var(--font-secondary);
+        font-size: var(--font-scale);
+        margin: auto;
+        padding: 20px;
+        max-width: var(--width);
+        text-align: left;
+        background-color: var(--background-color);
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        line-height: 1.5;
+        color: var(--text-color);
+      }
+
+      ::-moz-selection {
+        color: var(--code-block-color);
+        background: var(--code-block-background-color);
+      }
+
+      ::selection {
+        color: var(--code-block-color);
+        background: var(--code-block-background-color);
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-family: var(--font-main);
+        color: var(--heading-color);
+      }
+
+      a {
+        color: var(--text-color);
+        font-family: var(--font-main);
+        cursor: pointer;
+        text-decoration: none;
+        border-bottom: 3px solid var(--main-color);
+      }
+
+      a:hover {
+        background-color: var(--main-color);
+        color: var(--background-color);
+        text-decoration: none;
+      }
+
+      header {
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+        padding-bottom: 20px;
+        align-items: center;
+      }
+
+      .title:hover {
+        text-decoration: none;
+        background-color: var(--background-color);
+        border: none;
+      }
+
+      .title {
+        border: none;
+      }
+
+      .title h1 {
+        flex: 0.5 0;
+        margin-bottom: 0;
+      }
+
+      nav {
+        flex: 1 1 100%;
+      }
+
+      .toggle {
+        padding-top: 20px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: end;
+        white-space: nowrap;
+        margin-left: auto;
+        flex: 0 1;
+      }
+
+      .sun-div {
+        margin: -2px;
+        cursor: pointer;
+        user-select: none;
+        display: none;
+      }
+
+      .sun-svg {
+        height: 30px;
+        width: 30px;
+        color: black;
+      }
+
+      .moon-div {
+        margin: -2px;
+        cursor: pointer;
+        user-select: none;
+        display: inline-flex;
+      }
+
+      .moon-svg {
+        height: 27px;
+        width: 30px;
+        color: #262626;
+      }
+
+      a > code {
+        padding-bottom: 1px;
+      }
+
+      .post h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        text-decoration: none;
+        border-bottom: none;
+        display: table;
+        margin: 0px 0px 0px 0px;
+        text-align: left;
+      }
+
+      .post h2:hover,
+      h3:hover,
+      h4:hover,
+      h5:hover,
+      h6:hover {
+        background-color: var(--main-color);
+        color: var(--background-color);
+        cursor: pointer;
+      }
+
+      .post h2:before {
+        content: "#";
+        color: var(--main-color);
+        padding-right: 0.5em;
+      }
+
+      .post h3:before {
+        content: "##";
+        color: var(--main-color);
+        padding-right: 0.5em;
+      }
+
+      .post h4:before {
+        content: "###";
+        color: var(--main-color);
+        padding-right: 0.5em;
+      }
+
+      .post h5:before {
+        content: "####";
+        color: var(--main-color);
+        padding-right: 0.5em;
+      }
+
+      .post h2:hover:before {
+        content: "#";
+        color: var(--background-color);
+        padding-right: 0.5em;
+      }
+
+      .post h3:hover:before {
+        content: "##";
+        color: var(--background-color);
+        padding-right: 0.5em;
+      }
+
+      .post h4:hover:before {
+        content: "###";
+        color: var(---background-color);
+        padding-right: 0.5em;
+      }
+
+      .post h5:hover:before {
+        content: "####";
+        color: var(--background-color);
+        padding-right: 0.5em;
+      }
+
+      nav a {
+        margin-right: 8px;
+      }
+
+      strong,
+      b {
+        color: var(--heading-color);
+      }
+
+      button {
+        margin: 0;
+        cursor: pointer;
+      }
+
+      main {
+        line-height: 1.6;
+        border: 1px solid var(--main-color);
+        padding: 30px;
+      }
+
+      table {
+        width: 100%;
+      }
+
+      hr {
+        border: 0;
+        border-top: 1px dashed;
+      }
+
+      img {
+        max-width: 100%;
+      }
+
+      code {
+        font-family: monospace;
+        padding: 3px;
+        background-color: var(--code-background-color);
+        color: var(--code-color);
+        border-radius: 5px;
+      }
+
+      blockquote {
+        border-left: 1px solid #999;
+        color: var(--text-color);
+        padding-left: 20px;
+        font-style: italic;
+      }
+
+      footer {
+        margin-top: 40px;
+        padding: 25px 0;
+        text-align: center;
+      }
+
+      nav a.active {
+        border-bottom: 6px solid var(--main-color);
+      }
+
+      nav p {
+        margin-top: 0;
+      }
+
+      .home p {
+        margin-top: 0;
+      }
+
+      .home ul {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      .home li {
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+        position: relative;
+        padding-left: 1.375rem;
+      }
+
+      .home li::before {
+        position: absolute;
+        left: 0;
+        content: "»";
+      }
+
+      main h1 {
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+
+      .page ul {
+        list-style-type: none;
+      }
+
+      .page ul > li {
+        position: relative;
+      }
+
+      .page ul > li + li {
+        margin-top: 1em;
+      }
+
+      .reading-list-icon {
+        left: calc(2em * -1);
+        position: absolute;
+        text-align: center;
+        width: 2em;
+        line-height: inherit;
+        top: 8px;
+      }
+
+      .page p {
+        margin-top: 0;
+      }
+
+      .inline {
+        width: auto !important;
+      }
+
+      .highlight,
+      .code {
+        padding: 1px 15px;
+        background-color: var(--code-background-color);
+        color: var(--code-color);
+        border-radius: 3px;
+        margin-block-start: 1em;
+        margin-block-end: 1em;
+        overflow-x: auto;
+      }
+
+      .highlight {
+        background-color: var(--code-block-background-color);
+        color: var(--code-block-color);
+      }
+
+      /* blog post list */
+      ul.blog-posts {
+        list-style-type: none;
+        padding: unset;
+      }
+
+      ul.blog-posts li {
+        display: flex;
+        margin-bottom: 10px;
+      }
+
+      time {
+        font-style: normal;
+        opacity: 0.7;
+      }
+
+      ul.blog-posts li span {
+        flex: 0 0 130px;
+      }
+
+      table {
+        border-spacing: 0;
+      }
+
+      th,
+      td {
+        padding: 6px 13px;
+        border: 1px solid var(--code-block-background-color);
+        font-size: 1em;
+      }
+
+      .tags {
+        display: none;
+      }
+
+      .subscribe p {
+        margin-top: 0;
+      }
+
+      .subscribe input[type="submit"] {
+        margin-top: 10px;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        border-radius: 0;
+        border: 1px solid var(--main-color);
+        font-family: var(--font-secondary);
+        font-size: var(--font-scale);
+        font-weight: bold;
+        padding: 5px;
+      }
+
+      .subscribe input[type="submit"]:hover {
+        background-color: var(--main-color);
+        color: var(--background-color);
+        cursor: pointer;
+      }
+
+      .subscribe input[type="email"] {
+        border: 1px solid var(--main-color);
+        font-family: var(--font-secondary);
+        font-size: var(--font-scale);
+      }
+
+      .subscribe input[type="email"]::selection {
+        color: #ffffff;
+        background: #000000;
+      }
+
+      .subscribe input[type="email"]::-moz-selection {
+        color: #ffffff;
+        background: #000000;
+      }
+
+      /* ---------------------------------------------------- */
+
+      /* Reset */
+      button {
+        background: unset;
+        border: unset;
+        cursor: pointer;
+      }
+
+      /* Toast button */
+      .upvote-button {
+        margin-top: 40px;
+        color: var(--text-color);
+        font-family: var(--font-main);
+        align-items: center;
+        display: grid !important;
+        grid-template-areas:
+          "emoji label"
+          "count ...";
+        flex-direction: column;
+        gap: 0 4px;
+      }
+
+      .upvote-button svg {
+        display: none;
+      }
+
+      .upvote-button::before {
+        content: "🌿";
+        display: block;
+        font-size: 1rem;
+        grid-area: emoji;
+        margin-left: 4px;
+      }
+
+      .upvote-button:hover::before {
+        content: "🌿";
+      }
+
+      .upvote-button.upvoted:hover::before {
+        content: "🤙";
+      }
+
+      .upvote-button::after {
+        display: none;
+        grid-area: label;
+      }
+
+      .upvote-button:hover::after {
+        color: var(--text-color);
+        content: "Toast this post";
+        display: block;
+      }
+
+      .upvote-button.upvoted:hover::after {
+        content: "Toasted!";
+        display: block;
+      }
+
+      .upvote-count {
+        color: var(--text-color);
+        font-size: unset;
+        grid-area: count;
+        margin-top: 0 !important;
+      }
+    </style>
+  </head>
+
+  <body
+    class="home"
+    onload="(function() { document.cookie = `timezone=${Intl.DateTimeFormat().resolvedOptions().timeZone};path=/`; })()"
+  >
+    <header>
+      <a class="title" href="/">
+        <h1>Hi This Is Fjorn</h1>
+      </a>
+      <nav>
+        <p>
+          <a href="/">Home</a>
+          <a href="/blog/">Blog</a>
+          <a href="/good/">Good</a>
+        </p>
+      </nav>
+    </header>
+    <main>
+      <p>
+        I'm fern, a vascular plant known for my fractal fronds.
+        <br />
+        Here are a few fun facts about this polypodiopsida:
+      </p>
+      <ul>
+        <li>
+          <strong>Deft.</strong> One might say I do things <em>Deftly</em>
+        </li>
+        <li>
+          <strong>Engineer.</strong> I generally enjoy making computers go brrr
+        </li>
+        <li><strong>Emo.</strong> MCR will never go out of style</li>
+        <li>
+          <strong>Zero.</strong> Indexes should start at the first natural number
+        </li>
+        <li>
+          <strong>Nerdy.</strong> I, unfortunately, love league of legends
+        </li>
+        <li>
+          <strong>Urbanite.</strong> My aesthetic is <a
+            href="https://www.reddit.com/r/fuckcars/">r/fuckcars</a
+          >
+        </li>
+        <li>
+          <strong>Thriving.</strong> Having time to set up this blog bodes well for
+          me
+        </li>
+        <li><strong>Zesty.</strong> Big fan of citrus</li>
+      </ul>
+    </main>
+    <footer style="padding:25px 0;">
+      <span id="footer-directive">
+        <link
+          rel="shortcut icon"
+          type="image/svg+xml"
+          href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Ctext%20x='-.1em'%20y='.95em'%20font-size='85'%3E🌿%3C/text%3E%3C/svg%3E"
+        />
+      </span>
+
+      <span>
+        Powered by <a href="https://bearblog.dev">Bear ʕ•ᴥ•ʔ</a>
+      </span>
+    </footer>
+  </body>
+</html>
