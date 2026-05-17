@@ -1,0 +1,350 @@
+---
+title: Abusing Generators for Typesafety
+description: Generators go kind of hard
+pubDate: 2026-05-16 20:00
+draft: false
+---
+
+# Abusing Generators for Typesafety
+
+The Typescript [Effect](https://effect.website) library (in)famously promotes using its Typescript generator syntax to make its code style look more familiar to devs. Ironically, most Typescript devs are unfamiliar with generators too so it's often not a useful comparison anyways. While teaching myself Effect I found it useful to rederive how exactly Effect generator-style functions work and justify **why** this syntax would even be desirable. Here's what I found.
+
+##### Contents
+
+## The `Result` type
+
+I think the most valuable lesson most devs can take away from Effect is the mere existence of the `Result` type pattern. The `Result<T, E>` type encodes the idea that a function can either succeed, returning a value of type `T`, or fail, producing an error of type `E`. In Typescript it's actually not possible to express in a function's signature that it may throw an error at all; Typescript only gives tools for expressing the successful return type of a function. So then how could the `Result<T, E>` type be implemented?
+
+The most obvious implementation is most of the way there: let's just write functions so that they actually **never** throw and just return their error instead.
+
+```typescript
+function parseJson(json: string) {
+  try {
+    return JSON.parse(json);
+  } catch (error) {
+    // return the parsing error instead of throwing it
+    return error;
+  }
+}
+```
+
+From here callers can just check if the returned value is the parsed data or an instance of an Error. We can clean this up a bit by introducing a _discriminator_ that lets us just check an attribute on an object to determine whether we're dealing with the success value or the error value.
+
+```typescript
+type Result<T, E> =
+  | {
+      type: "Ok";
+      value: T;
+    }
+  | {
+      type: "Err";
+      error: E;
+    };
+
+function parseJson(json: string): Result<object, string> {
+  try {
+    return { type: "Ok", value: JSON.parse(json) };
+  } catch (error) {
+    return {
+      type: "Err",
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+const result = parseJson("{ nope }");
+if (result.type === "Ok") {
+  console.log(result.value);
+} else {
+  console.error(result.error); // will print the parsing error
+}
+```
+
+### Actually using the `Result` type
+
+The `Result` type is a pretty useful pattern but it's not very ergonomic to use. If we want to chain together a series of functions that might fail we have to write a lot of boilerplate to handle the error cases.
+
+```typescript
+declare function mightFail1(): Result<number, Error>;
+declare function mightFail2(input: number): Result<string, Error>;
+
+const result1 = mightFail1();
+if (result1.type === "Ok") {
+  const result2 = mightFail2(result1.value);
+  if (result2.type === "Ok") {
+    console.log(result2.value);
+  } else {
+    console.error(result2.error);
+  }
+} else {
+  console.error(result1.error);
+}
+```
+
+Functional programmer bros might recommend common FP tools like `map`, `flatMap`, and `fold` to give us handles for manipulating the success and error values without completely unwrapping them with `.value` or `.error`. But even then it ends up looking like callback hell from `Promise.then` chains. Take this example using the `Result.andThen` method from the great [`neverthrow`](https://github.com/supermacro/neverthrow) library.
+
+```typescript
+declare function f1(): Result<number, Error>;
+declare function f2(input: number): Result<string, Error>;
+declare function f3(input: string): Result<boolean, Error>;
+
+const result = f1()
+  .andThen((num) => {
+    if (num < 0) {
+      return new Err<boolean, Error>(new Error("number must be positive"));
+    }
+    return f2(num);
+  })
+  .andThen((str) => {
+    if (str.length === 0) {
+      return new Err<boolean, Error>(new Error("string must not be empty"));
+    }
+    return f3(str);
+  });
+
+if (result.isOk()) {
+  console.log(result.value);
+} else {
+  console.error(result.error);
+}
+```
+
+With promises we escaped callback hell by introducing the `await` keyword. Can we do something similar for `Result`s?
+
+## Introducing Generators
+
+I've been writing Javascript for a long time and didn't even realize the language had generators until I started investigating Effect. They have an API almost identical to Python generators, but are much less popular. The basic idea is that a generator function has two ways to "return" a value to its caller: either it can return a value directly like a normal function or it can `yield`. When a generator function yields a value it pauses itself and gives a value back to the caller. Note that during the "pause" the generator retains all of its internal state like local variables and the call stack. The next time we call the generator, it resumes execution from its last `yield` point and runs until it either yields another value or `return`s like normal.
+
+```python
+# Python generators
+def generator():
+    yield 1
+    yield 2
+    yield 3
+
+gen = generator()
+print(next(gen)) # 1
+print(next(gen)) # 2
+print(next(gen)) # 3
+```
+
+```typescript
+// Typescript generators
+function* generator() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+
+const gen = generator();
+console.log(gen.next()); // 1
+console.log(gen.next()); // 2
+console.log(gen.next()); // 3
+```
+
+Importantly, generators can themselves run other generators. Often one generator wants to completely delegate to another generator, treating the sub-generator as a subsequence. In Python we use the `yield from` keyword and in Typescript we use the `yield*` keyword to express this delegation.
+
+```python
+# Python generators
+def subgenerator():
+    yield 4
+    yield 5
+    yield 6
+
+def generator():
+    yield 1
+    yield 2
+    yield 3
+
+def outer_generator():
+    yield from generator()
+    yield from subgenerator()
+    yield 7
+    yield 8
+    yield 9
+
+gen = outer_generator()
+print(list(gen)) # [1, 2, 3, 4, 5, 6, 7, 8, 9]
+```
+
+```typescript
+// Typescript generators
+function* subgenerator() {
+  yield 4;
+  yield 5;
+  yield 6;
+  return "done";
+}
+
+function* generator() {
+  yield 1;
+  yield 2;
+  yield 3;
+  return "done";
+}
+
+function* outerGenerator() {
+  yield* generator();
+  yield* subgenerator();
+  yield 7;
+  yield 8;
+  yield 9;
+  return "done";
+}
+
+// The `return` just indicates the generator is done - it doesn't affect the values that are yielded
+console.log([...outerGenerator()]); // [1, 2, 3, 4, 5, 6, 7, 8, 9]
+```
+
+### Multiple Return Channels
+
+The trick to using generators for processing `Result`s is to realize that what we actually want is some system to express two return channels: one for the success value and one for the error value. Generators can provide this with the `yield` channel and the normal `return` channel. Imagine if we could achieve syntax like:
+
+```typescript
+function* parseJson(json: string) {
+  try {
+    // put success values in the normal return channel
+    return JSON.parse(json);
+  } catch (error) {
+    // put errors in the yield channel
+    yield new Error("Failed to parse JSON");
+  }
+}
+
+function* checkIsObject(o: unknown) {
+  if (typeof o !== "object" || o === null) {
+    yield new Error("Value must be an object");
+  }
+  return o;
+}
+
+function* chainResults(json: string) {
+  // yield* delegates to the inner generator's yield channel
+  const parsed = yield* parseJson(json);
+  const object = yield* checkIsObject(parsed);
+  return object;
+}
+```
+
+This syntax is not far off from what we're used to, but now that we've specified errors in their own `yield` channel we'd hope that Typescript can infer the actual error types for us.
+
+```typescript
+function* chainResults(json: string) {
+  const parsed = yield* parseJson(json);
+  const object = yield* checkIsObject(parsed);
+  return object;
+}
+
+const final = chainResults('{ "name": "John", "age": 30 }');
+//    ^ Return channel: number; Yield channel: Error("Number must be positive") | Error("Failed to parse JSON")
+```
+
+## Full Implementation
+
+Now here is a minimal implementation of the `Result` type with generator semantics. The whole thing fits in fewer than 50 lines. I strongly recommend checking out the code on [Typescript Playground](https://www.typescriptlang.org/play/?downlevelIteration=true&target=9&pretty=true#code/MYGwhgzhAEDyDWAeAKgGmgUQHzQN4ChpoA3MEAVwFMAuaZAbkOmAHsA7CAFwCdzhOW3ABQBzAJbFKbWsgCUeJkU4ALMRAB0pCpWgBeaOMltGRAL5MA9Behg2ceNDU27YzpW5gB3aCs+OAtv6UACZinpQgAJ7QXCwADjAAtNBslJLekWIRwRBMAFQA2gDKkf4ARiwg6q7unoIAukKytADiUrVeiBjc3Iip6ejY6Mg4BERE3JSc5Nx2KmqaZFQm0Obm+KCQMN29aJijTO7cgrQYK6wcPHxeohJSp-Jj4-MaR4J6BnfGTOZEVs6YHqOGC2RxuDxeHzKPyZbIwVwQCIAM3yxVKFSqNQhDSarXa2N6Oz6aXcgywwwO42g-wAApwIIlKAAPOKUfiMnrvZIqHTIAz4sTAYHQJFgeA6CAsQG7MnCpHkNj8MTsMhRGxQMQiNhgMogHQCaXEgb7RTQWEgYJQtQrP7WOkM5ms9lvbzc5S8-mpbiCuVinS2S0Adx0qRCYJ8Uv8nmAyihOhE+Lq3km01m0BYSPsppTMzmqggKzW+HwnEirOgACVKBByCBOChZfoEA39tAAD6GvbYRglss6ACSbCR7gQyD7EEQFZw+gr0GZbjYOUr1dr9bEQ-cdHQCvgbBYgbYOAA-HRoLR+u5GKXy4Ph9wdmPWROpx9Z-OpEuqzW64gd3uD+g653q2J4YGeKQktwPb-C8c5MjwYAigqSrsDEmraqmOgsOkIAsGAlqqvuMBIu8146EB7hSMA+qRu4CZxtKJBgN6tj0ummaUGAMZmlkFp5I4ebxomXj4PKiqcMqdi8GwbRekmiBMAAmrxwQ7HBC5LkSF7cNubC7vuh6oEwskdIIVapmwX6rupH4wFZP5-gZun6Qe5L4FgQhMAm0jQE0eg4CZBKIMp2Q7OggVJuZub2ZwbnNMu371kwt4jvAj7VogEVeFFswxW5RApfePTpROIUWjsOAdoVD7jplwlmVM0UrnWWDuYwYkoVJCpZYILbYJ5RDebQfm6AF9WEj0Rqkvs6AxX1WBxbQc1dpS1LWAAVuQXA+H6DFImI3DbfMbAiFCfhOOawRhkI7w5rMYZiJme7Hadl0QLITAXNtdj6N5TTqKk8FNCsd12GwizaIw6z-LosNw-DcFgP4cR6no8Po3DonIRJqGsLWwQAGJgGIIC4glq6IFw3onegFSVJxh4KEQj2+QAsp4yjqB4i4sP4fmINAAAM6gAKyPNmjVpqkgbSkIoogIiH1mEwoMQTLCBCAARJE1aax95gdTjdj+JqyicETJNk3NbDkOU00ACLhKtLNCOzKhcwGvP80L6gAIzi1SqvS7LweO24TRK6sKuS2DlDq-AQi+4Lgv68WhuSfx3kxRAflPP8l38cELDVikLAvSKpHuvYYKmd4kDhkXJfPTx2QxFKkQsOQNiTNAepIpw0CBq4sY8tAqtaFQdCfew22IfoBfMJ3FoW6TsgrPnKmFxElAiOEMAGqPalYkmg+qNxQ8gCA0Cbdtl1goiICZuQcQRgxwCqpuGbQAABlnzX0t-aelxoBlA+AvE2IgzYr2BkwF2oCBYpyZuMGCbJlBsEFKqaIo8F5OAVKkaiUBmLRDKOQAe-YrR6TBAAchgCIFgLBLRxA8Eqair8F62EiOXXwA8AD6ECzY8JAf6OwOwJYWRbnxNWhptKDE5NwDywcdiCC1v4LaA8yg6DiCwCArg7h6zXj8aO4jg7NipuuEQ6BtIeW-kUHg5joAABJcBgFMNAZIAA5W2GjvBOLKKYb+Bj1hfQHvtbUV99DSR6sIP+iV3qMH+OMAAeuTH8ZiaYgPoXqUEHYw46A7Eo+RGwZ703ULhEQct1xkDXmtewtBcDQE1hPSgmtaCa1sdTV6JcPFeM3EnQWmtVjpm8DsOpDSXQtJFGQREqwgA) so you can hover the type inferences and actually execute it to see how the data flows. This implementation is heavily inspired by [`neverthrow`](https://github.com/supermacro/neverthrow) so you should check out their implementation too.
+
+```typescript
+class Ok<T, E> {
+  value: T;
+  constructor(given: T) {
+    this.value = given;
+  }
+  // an Ok is an iterator that immediately stops - never yields
+  *[Symbol.iterator](): Generator<Err<never, E>, T> {
+    return this.value;
+  }
+}
+
+class Err<T, E> {
+  error: E;
+  constructor(given: E) {
+    this.error = given;
+  }
+  // an Err is an iterator that yields itself
+  *[Symbol.iterator](): Generator<Err<never, E>, T> {
+    // @ts-expect-error - the T generic is fake so Err<T, E> is functionally assignable to Err<never, E>
+    yield this;
+    // @ts-expect-error - the T generic is fake and we need it to match the generator return of Ok
+    return this;
+  }
+}
+
+type Result<T, E> = Ok<T, E> | Err<T, E>;
+
+type InferOkTypes<R> = R extends Result<infer T, unknown> ? T : never;
+type InferErrTypes<R> = R extends Result<unknown, infer E> ? E : never;
+
+// this extra function signature overload allows for type inference to merge the Err variants of each yield* in the generator
+function runGenerator<
+  YieldErr extends Err<never, unknown>,
+  GeneratorReturnResult extends Result<unknown, unknown>,
+>(
+  gen: () => Generator<YieldErr, GeneratorReturnResult>,
+): Result<
+  InferOkTypes<GeneratorReturnResult>,
+  InferErrTypes<YieldErr> | InferErrTypes<GeneratorReturnResult>
+>;
+function runGenerator<T, E>(
+  gen: () => Generator<Err<never, E>, Result<T, E>>,
+): Result<T, E> {
+  // just take the first thing that is yielded (or returned if nothing yields)
+  const n = gen().next();
+  return n.value;
+}
+
+// ========== example =============
+function couldFail(): Result<string, boolean> {
+  if (Math.random() < 0.5) {
+    return new Err(false);
+  }
+  return new Ok("yes");
+}
+function mightFail(): Result<number, Date> {
+  if (Math.random() < 0.1) {
+    return new Err(new Date());
+  }
+  return new Ok(100);
+}
+
+function* genResults() {
+  // yield* does nothing for the Ok iterator as it does not yield so you are left with the return value T
+  const a = yield* couldFail();
+  // yield* delegates to the Err iterator which will just yield itself up to the caller of `genResults`
+  const b = yield* mightFail();
+  if (b < 0) {
+    // technically the yield* is unnecessary but I think it's good practice to yield* anything that _might_ be an Err
+    return yield* new Err<never, Error>(new Error("must be positive"));
+  }
+  return new Ok<string, never>(`String ${a} - Number ${b}`);
+}
+
+const final = runGenerator(genResults);
+//    ^ Result<string, boolean | Date | Error>
+console.log(final); // Ok: { "value": "String yes - Number 100" } or Err: { "error": false }
+```
+
+Many people like to compare the `const a = yield* couldFail()` syntax to promises like `await couldFail()`. Here `yield*` is telling you "bubble up the error value or give me the success value" while `await` is telling you "code will pause here until the promise is resolved". In both cases the value assigned to `a` is always the success value and in both cases the caller has an error bubbled up to them. The difference is that `yield*` gets to tell the type system exactly what that error type is.
+
+```typescript
+// with promises
+let result;
+promiseResults()
+  .then((res) => {
+    result = res;
+  })
+  .catch((err) => {
+    result = err; // type is unknown
+  });
+
+// with results
+const result = runGenerator(genResults);
+if (result.isOk()) {
+  console.log(result.value);
+} else {
+  console.error(result.error); // type is the Yield channel of genResults
+}
+```
+
+## Conclusion
+
+The Effect library's generator syntax is scary at first but it's ultimately just a mechanism for expressing multiple return channels. If you were previously intimidated by it, now you can just be intimidated by the giant Effect ecosystem and runtime instead. I'd highly HIGHLY recommend at least giving `neverthrow` a shot in your projects. It's much simpler than Effect but gives you all the same typesafety for the `Result` type. Though, once you're comfortable with `neverthrow` you should definitely give Effect another shot and see if the extra bells and whistles aren't too scary anymore.
