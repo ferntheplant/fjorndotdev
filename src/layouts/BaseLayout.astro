@@ -1,47 +1,29 @@
 ---
 import "@/src/styles/global.css";
-import "katex/dist/katex.min.css";
 
 export interface Props {
   title: string;
   description: string;
-  canonicalUrl?: string;
   ogImage?: string;
   type?: "website" | "article";
+  pubDate?: Date;
 }
 
-const {
-  title,
+const { title, description, ogImage, type = "website", pubDate } = Astro.props;
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": type === "article" ? "BlogPosting" : "WebSite",
+  name: title,
+  headline: title,
+  url: canonicalUrl,
   description,
-  canonicalUrl = "https://fjorn.dev",
-  ogImage = "https://fjorn.dev/favicon.svg",
-  type = "website",
-} = Astro.props;
+  ...(ogImage && { image: ogImage }),
+  ...(pubDate && { datePublished: pubDate.toISOString() }),
+};
 ---
-
-<script is:inline>
-  const getThemePreference = () => {
-    if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) {
-      return localStorage.getItem("theme");
-    }
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-  };
-  const isDark = getThemePreference() === "dark";
-  document.documentElement.classList[isDark ? "add" : "remove"]("dark");
-
-  if (typeof localStorage !== "undefined") {
-    const observer = new MutationObserver(() => {
-      const isDark = document.documentElement.classList.contains("dark");
-      localStorage.setItem("theme", isDark ? "dark" : "light");
-    });
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-  }
-</script>
 
 <html lang="en">
   <head>
@@ -50,6 +32,29 @@ const {
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=5"
     />
+    {
+      /*
+        Runs before any CSS so the first paint already has the right theme.
+        Setting color-scheme inline also themes the browser canvas and
+        scrollbars before the stylesheet arrives.
+      */
+    }
+    <script is:inline>
+      (() => {
+        let theme;
+        try {
+          theme = localStorage.getItem("theme");
+        } catch {}
+        if (theme !== "light" && theme !== "dark") {
+          theme = matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+        }
+        const root = document.documentElement;
+        root.classList.toggle("dark", theme === "dark");
+        root.style.colorScheme = theme;
+      })();
+    </script>
     <meta name="generator" content={Astro.generator} />
 
     <title>{title}</title>
@@ -57,37 +62,26 @@ const {
     <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" href="/favicon.svg" />
 
-    <!-- Primary Meta Tags -->
-    <meta name="title" content={title} />
-    <meta name="description" content={description} />
-
     <!-- Open Graph / Facebook -->
     <meta property="og:site_name" content="Hi This Is Fjorn" />
     <meta property="og:title" content={title} />
     <meta property="og:type" content={type} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={ogImage} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
 
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary" />
-    <meta property="twitter:url" content={canonicalUrl} />
-    <meta property="twitter:title" content={title} />
-    <meta property="twitter:description" content={description} />
-    <meta property="twitter:image" content={ogImage} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
 
     <!-- Microdata -->
-    <script type="application/ld+json">
-      {
-        "@context": "http://schema.org",
-        "@type": "{type}",
-        "name": "{title}",
-        "headline": "{title}",
-        "url": "{canonicalUrl}",
-        "description": "{description}",
-        "image": "{ogImage}"
-      }
-    </script>
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify(structuredData)}
+    />
   </head>
   <body
     class="bg-background text-foreground m-auto max-w-[720px] p-4 pt-10 text-left font-mono text-base leading-relaxed break-words transition-colors"

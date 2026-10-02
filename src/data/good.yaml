@@ -1,0 +1,29 @@
+# Cool stuff I've consumed, rendered at /good. Newest first.
+# Add entries with `pnpm good <url>` (see scripts/good.ts), or by hand:
+#   type: article | book | youtube | code
+#   date: YYYY-MM-DD
+
+- type: article
+  date: "2024-08-07"
+  title: Vegetal
+  url: https://sophie006liu.github.io/vegetal/
+
+- type: code
+  date: "2024-04-17"
+  title: DreamBerd
+  url: https://github.com/TodePond/DreamBerd
+
+- type: article
+  date: "2024-04-15"
+  title: 1/0 = 0
+  url: https://www.hillelwayne.com/post/divide-by-zero/
+
+- type: article
+  date: "2024-04-06"
+  title: Shit Yourself
+  url: https://heydonworks.com/article/shit-yourself/
+
+- type: youtube
+  date: "2024-04-03"
+  title: How to make streets safer with just a brick
+  url: https://www.youtube.com/watch?v=8kP6R0clBGY

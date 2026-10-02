@@ -1,0 +1,15 @@
+---
+import BaseLayout from "@/src/layouts/BaseLayout.astro";
+import Header from "@/src/components/Header.astro";
+import Link from "@/src/components/Link.astro";
+
+const title = "Not Found | Hi This Is Fjorn";
+const description = "This page doesn't exist";
+---
+
+<BaseLayout title={title} description={description}>
+  <Header />
+  <main class="border-primary border p-8">
+    <p>Nothing grows here. Try the <Link href="/">home page</Link> instead.</p>
+  </main>
+</BaseLayout>

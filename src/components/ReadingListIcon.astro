@@ -1,13 +1,14 @@
 ---
 import { FileText, BookOpen, Youtube, Code } from "@lucide/astro";
+import type { GoodType } from "@/src/lib/good";
 
 export interface Props {
-  type: "article" | "book" | "youtube" | "code";
+  type: GoodType;
 }
 
 const { type } = Astro.props;
 
-const iconMap = {
+const iconMap: Record<GoodType, typeof FileText> = {
   article: FileText,
   book: BookOpen,
   youtube: Youtube,

@@ -3,6 +3,7 @@ import Header from "@/src/components/Header.astro";
 import BaseLayout from "@/src/layouts/BaseLayout.astro";
 import { formatDate } from "@/src/lib/utils";
 import { getCollection, render } from "astro:content";
+import "katex/dist/katex.min.css";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
@@ -14,14 +15,13 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
-console.log(post.data.pubDate);
 ---
 
 <BaseLayout
   title={post.data.title}
   description={post.data.description}
-  canonicalUrl="https://fjorn.dev/blog/"
   type="article"
+  pubDate={post.data.pubDate}
 >
   <Header />
   <main class="border-primary border p-8">
@@ -42,7 +42,6 @@ console.log(post.data.pubDate);
   addEventListener("click", (e) => {
     const btn = e.target.closest("button.footnote-ref[data-fn-id]");
     if (!btn) return;
-    const id = btn.getAttribute("data-fn-id");
     const controls = btn.getAttribute("aria-controls");
     if (!controls) return;
 
@@ -72,6 +71,25 @@ console.log(post.data.pubDate);
 </script>
 
 <style is:global>
+  /* KaTeX font overrides, kept with the KaTeX stylesheet import */
+  :root :where(.katex) {
+    font-family:
+      KaTeX_Main,
+      Times New Roman,
+      serif; /* textstyle */
+    line-height: 1.1;
+  }
+  .katex .mathit {
+    font-family: KaTeX_Math, KaTeX_Main, serif;
+  } /* math italic */
+  .katex .mathrm {
+    font-family: KaTeX_Main, serif;
+  } /* \mathrm, \text */
+  .katex .mathbf {
+    font-family: KaTeX_Main, serif;
+    font-weight: 700;
+  }
+
   .footnote-inline {
     padding: 0.75rem;
     border-left: 3px solid var(--primary);
