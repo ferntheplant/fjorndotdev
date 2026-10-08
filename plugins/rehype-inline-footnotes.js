@@ -7,8 +7,8 @@
  *
  * @typedef {import('hast').Root} Root
  * @typedef {import('hast').Element} Element
+ * @typedef {import('hast').ElementContent} ElementContent
  * @typedef {import('hast').Parent} Parent
- * @typedef {import('hast').Content} Content
  */
 import { visitParents } from "unist-util-visit-parents";
 
@@ -22,28 +22,43 @@ const BLOCK_TAGS = new Set([
   "article",
 ]);
 
-/** @param {any} node @param {string=} tag */
+/**
+ * @param {unknown} node
+ * @param {string=} tag
+ * @returns {node is Element}
+ */
 function isElement(node, tag) {
-  return node && node.type === "element" && (!tag || node.tagName === tag);
+  if (typeof node !== "object" || node === null) return false;
+  const el = /** @type {Partial<Element>} */ (node);
+  return el.type === "element" && (!tag || el.tagName === tag);
 }
 
+/** @param {unknown} id */
 function normalizeFnId(id) {
   // Accept "...fn-<number>" → "fn-<number>"
   const m = String(id).match(/(?:^|-)fn-(\d+)$/);
   return m ? `fn-${m[1]}` : null;
 }
 
-/** Deep clone a HAST node (good enough for our usage) */
+/**
+ * Deep clone a HAST node (good enough for our usage)
+ * @template T
+ * @param {T} node
+ * @returns {T}
+ */
 function clone(node) {
   return JSON.parse(JSON.stringify(node));
 }
 
-/** Remove backlink anchors (in-place) anywhere in the subtree */
+/**
+ * Remove backlink anchors (in-place) anywhere in the subtree
+ * @param {ElementContent} node
+ * @returns {ElementContent}
+ */
 function stripBackrefs(node) {
-  if (!node || typeof node !== "object") return node;
-  if (!("children" in node) || !Array.isArray(node.children)) return node;
+  if (node.type !== "element") return node;
 
-  /** @type {Content[]} */
+  /** @type {ElementContent[]} */
   const out = [];
   for (const child of node.children) {
     if (isElement(child, "a")) {
@@ -60,9 +75,7 @@ function stripBackrefs(node) {
         continue;
       }
     }
-    const c = clone(child);
-    stripBackrefs(c);
-    out.push(c);
+    out.push(stripBackrefs(clone(child)));
   }
   node.children = out;
   return node;
@@ -71,7 +84,7 @@ function stripBackrefs(node) {
 /** @type {import('unified').Plugin<[], Root>} */
 export default function rehypeInlineFootnotes() {
   return /** @param {Root} tree */ (tree) => {
-    /** @type {Record<string, Content[]>} */
+    /** @type {Record<string, ElementContent[]>} */
     const defs = {};
 
     // 1) Collect definitions from bottom list: <li id="...fn-x">…</li>
@@ -80,11 +93,8 @@ export default function rehypeInlineFootnotes() {
       const norm = normalizeFnId(node.properties.id);
       if (!norm) return;
 
-      const kids = Array.isArray(node.children) ? node.children : [];
       // Clone and strip backref anchors inside paragraphs
-      /** @type {Content[]} */
-      const cleaned = kids.map((k) => stripBackrefs(clone(k)));
-      defs[norm] = cleaned;
+      defs[norm] = node.children.map((k) => stripBackrefs(clone(k)));
     });
 
     if (!Object.keys(defs).length) return;
@@ -112,16 +122,9 @@ export default function rehypeInlineFootnotes() {
       for (let i = ancestors.length - 1; i >= 0; i--) {
         const anc = ancestors[i];
         if (isElement(anc) && BLOCK_TAGS.has(anc.tagName)) {
-          const maybeParent = /** @type {Parent|undefined} */ (
-            ancestors[i - 1]
-          );
-          if (
-            maybeParent &&
-            Array.isArray(/** @type {any} */ (maybeParent).children)
-          ) {
-            indexInParent = /** @type {any} */ (maybeParent).children.indexOf(
-              anc,
-            );
+          const maybeParent = ancestors[i - 1];
+          if (maybeParent) {
+            indexInParent = maybeParent.children.indexOf(anc);
             if (indexInParent >= 0) {
               insertParent = maybeParent;
               break;
@@ -130,7 +133,6 @@ export default function rehypeInlineFootnotes() {
         }
       }
       if (!insertParent) return;
-      // --- inside visitParents(...) where you have `norm`, `insertParent`, `indexInParent` ---
 
       const inlineId = `fn-inline-${norm.replace(/^fn-/, "")}`;
 
@@ -147,12 +149,11 @@ export default function rehypeInlineFootnotes() {
       delete node.properties.href; // remove the hash link
 
       // Avoid duplicates if multiple refs live in the same block
-      const next = /** @type {Element|undefined} */ (
-        /** @type {any} */ (insertParent).children[indexInParent + 1]
-      );
+      const next = insertParent.children[indexInParent + 1];
       if (isElement(next, "aside") && next.properties?.["data-fn-id"] === norm)
         return;
 
+      /** @type {Element} */
       const aside = {
         type: "element",
         tagName: "aside",
@@ -165,8 +166,7 @@ export default function rehypeInlineFootnotes() {
         children: def.map(clone),
       };
 
-      insertParent /** @type {any} */.children
-        .splice(indexInParent + 1, 0, aside);
+      insertParent.children.splice(indexInParent + 1, 0, aside);
     });
   };
 }

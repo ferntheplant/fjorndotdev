@@ -13,12 +13,7 @@ const blogPosts = (await getCollection("blog"))
   .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
 ---
 
-<BaseLayout
-  title={title}
-  description={description}
-  canonicalUrl="https://fjorn.dev/blog/"
-  type="article"
->
+<BaseLayout title={title} description={description}>
   <Header />
   <main class="border-primary border p-8">
     <p class="pb-6">Maybe one day I'll write some blog posts here.</p>
@@ -30,7 +25,7 @@ const blogPosts = (await getCollection("blog"))
             <time datetime={post.data.pubDate.toISOString()} class="opacity-70">
               {formatDate(post.data.pubDate)}
             </time>
-            <Link href={`/blog/${post.id}`}>{post.data.title}</Link>
+            <Link href={`/blog/${post.id}/`}>{post.data.title}</Link>
           </li>
         ))
       }

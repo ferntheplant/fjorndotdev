@@ -1,10 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "@fontsource-variable/roboto-mono";
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  color-scheme: light;
   --background: oklch(0.9824 0.013 71.33); /* was --background-color: #fff8f0 */
   --foreground: oklch(0.256 0.0217 47.85); /* was --text-color: #2c201a */
   --card: oklch(1 0 0);
@@ -41,6 +41,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   /* Shadcn dark colors - mapped from original website */
   --background: oklch(0.2686 0 0); /* was --background-color: #262626 */
   --foreground: oklch(0.9219 0 0); /* was --text-color: #e5e5e5 */
@@ -123,34 +124,27 @@
   }
   body {
     @apply bg-background text-foreground selection:bg-foreground selection:text-background;
-    font-family: "Roboto Mono Variable", monospace;
   }
 }
 
-html.dark .astro-code,
-html.dark .astro-code span {
-  color: var(--shiki-dark) !important;
-  background-color: var(--shiki-dark-bg) !important;
-  font-style: var(--shiki-dark-font-style) !important;
-  font-weight: var(--shiki-dark-font-weight) !important;
-  text-decoration: var(--shiki-dark-text-decoration) !important;
+/* Shiki's light-dark() mode only switches colors; apply each theme's weight and
+   decoration too. Font style is deliberately left out: no italics in code. */
+.astro-code span {
+  font-weight: var(--shiki-light-font-weight);
+  text-decoration: var(--shiki-light-text-decoration);
+}
+.dark .astro-code span {
+  font-weight: var(--shiki-dark-font-weight);
+  text-decoration: var(--shiki-dark-text-decoration);
 }
 
-/* placed in a global stylesheet loaded after Tailwind/base */
-:root :where(.katex) {
-  font-family:
-    KaTeX_Main,
-    Times New Roman,
-    serif; /* textstyle */
-  line-height: 1.1;
+/* Crossfade between pages instead of a hard repaint on navigation. */
+@view-transition {
+  navigation: auto;
 }
-.katex .mathit {
-  font-family: KaTeX_Math, KaTeX_Main, serif;
-} /* math italic */
-.katex .mathrm {
-  font-family: KaTeX_Main, serif;
-} /* \mathrm, \text */
-.katex .mathbf {
-  font-family: KaTeX_Main, serif;
-  font-weight: 700;
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
 }

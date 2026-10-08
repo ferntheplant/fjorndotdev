@@ -4,57 +4,17 @@ import Header from "@/src/components/Header.astro";
 import ReadingListIcon from "@/src/components/ReadingListIcon.astro";
 import Link from "@/src/components/Link.astro";
 import { formatDate } from "@/src/lib/utils";
+import { getCollection } from "astro:content";
 
 const title = "Good | Hi This Is Fjorn";
 const description = "Cool stuff I've consumed";
 
-interface ReadingItem {
-  type: "article" | "book" | "youtube" | "code";
-  date: string;
-  title: string;
-  url: string;
-}
-
-const readingList: ReadingItem[] = [
-  {
-    type: "article",
-    date: "2024-08-07T04:00",
-    title: "Vegetal",
-    url: "https://sophie006liu.github.io/vegetal/",
-  },
-  {
-    type: "code",
-    date: "2024-04-17T04:00",
-    title: "DreamBerd",
-    url: "https://github.com/TodePond/DreamBerd",
-  },
-  {
-    type: "article",
-    date: "2024-04-15T04:00",
-    title: "1/0 = 0",
-    url: "https://www.hillelwayne.com/post/divide-by-zero/",
-  },
-  {
-    type: "article",
-    date: "2024-04-06T04:00",
-    title: "Shit Yourself",
-    url: "https://heydonworks.com/article/shit-yourself/",
-  },
-  {
-    type: "youtube",
-    date: "2024-04-03T04:00",
-    title: "How to make streets safer with just a brick",
-    url: "https://www.youtube.com/watch?v=8kP6R0clBGY",
-  },
-];
+const readingList = (await getCollection("good")).sort((a, b) =>
+  b.data.date.localeCompare(a.data.date),
+);
 ---
 
-<BaseLayout
-  title={title}
-  description={description}
-  canonicalUrl="https://fjorn.dev/good/"
-  type="article"
->
+<BaseLayout title={title} description={description}>
   <Header />
   <main class="border-primary border p-8">
     <p class="pb-6">
@@ -66,11 +26,11 @@ const readingList: ReadingItem[] = [
       {
         readingList.map((item) => (
           <li class="flex flex-row items-center gap-4">
-            <ReadingListIcon type={item.type} />
-            <time datetime={item.date} class="opacity-70">
-              {formatDate(item.date)}
+            <ReadingListIcon type={item.data.type} />
+            <time datetime={item.data.date} class="opacity-70">
+              {formatDate(item.data.date)}
             </time>
-            <Link href={item.url}>{item.title}</Link>
+            <Link href={item.data.url}>{item.data.title}</Link>
           </li>
         ))
       }

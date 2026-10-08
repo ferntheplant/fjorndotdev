@@ -36,14 +36,15 @@ const { className, size = 16 } = Astro.props;
 
   if (themeToggle) {
     themeToggle.addEventListener("click", () => {
-      const isDark = document.documentElement.classList.contains("dark");
+      const root = document.documentElement;
+      const theme = root.classList.contains("dark") ? "light" : "dark";
 
-      if (isDark) {
-        document.documentElement.classList.remove("dark");
-        localStorage.setItem("theme", "light");
-      } else {
-        document.documentElement.classList.add("dark");
-        localStorage.setItem("theme", "dark");
+      root.classList.toggle("dark", theme === "dark");
+      root.style.colorScheme = theme;
+      try {
+        localStorage.setItem("theme", theme);
+      } catch {
+        // Storage can be unavailable (e.g. private mode); the toggle still works for this page.
       }
     });
   }
