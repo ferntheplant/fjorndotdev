@@ -6,8 +6,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "preview:cf": "astro build && wrangler dev",
-    "deploy": "astro build && wrangler deploy",
+    "preview:cf": "alchemy dev",
+    "deploy": "alchemy deploy --stage prod",
     "astro": "astro",
     "good": "node scripts/good.ts",
     "format": "prettier --write .",
@@ -29,7 +29,7 @@
     "@tailwindcss/vite": "^4.1.12",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
-    "astro": "^7.3.5",
+    "astro": "^7.3.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "katex": "^0.16.22",
@@ -49,9 +49,13 @@
   },
   "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad",
   "devDependencies": {
+    "@alchemy.run/frontend-frameworks": "2.0.0-beta.81",
     "@astrojs/check": "^0.9.10",
+    "@effect/platform-node": "^4.0.2",
     "@types/hast": "^3.0.5",
     "@typescript-eslint/parser": "^8.41.0",
+    "alchemy": "2.0.0-beta.81",
+    "effect": "^4.0.2",
     "eslint": "^9.34.0",
     "eslint-plugin-astro": "^1.3.1",
     "eslint-plugin-jsx-a11y": "^6.10.2",
@@ -62,8 +66,7 @@
     "prettier-plugin-tailwindcss": "^0.6.14",
     "tw-animate-css": "^1.3.7",
     "typescript": "^6.0.3",
-    "unified": "^11.0.5",
-    "wrangler": "^4.147.0"
+    "unified": "^11.0.5"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx,astro,js,jsx,json,jsonc,md,css}": [
