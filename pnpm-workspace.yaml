@@ -22,12 +22,9 @@ catalog:
   "@astrojs/react": 7.0.0
   "@commitlint/cli": 21.2.3
   "@commitlint/config-conventional": 21.2.3
-  # Effect is at 4.1.2, ahead of baseline, because alchemy's packages require `effect` ^4.1.2 and pull
-  # in `@effect/platform-node-shared` 4.1.2, which crashes on an older `effect` (tools/ready-agent
-  # fails to load). Taken by hand before the weekly bump's 7-day wait; keep these three together.
-  "@effect/platform-node": 4.1.2
+  "@effect/platform-node": 4.0.3
   "@effect/tsgo": 0.51.1
-  "@effect/vitest": 4.1.2
+  "@effect/vitest": 4.0.3
   "@lucide/astro": 0.542.0
   "@radix-ui/react-slot": 1.2.3
   "@shadcn/lint": 0.2.3
@@ -40,7 +37,7 @@ catalog:
   astro: 7.3.7
   class-variance-authority: 0.7.1
   clsx: 2.1.1
-  effect: 4.1.2
+  effect: 4.0.3
   fallow: 3.31.0
   katex: 0.16.22
   react: 19.1.1
@@ -96,6 +93,14 @@ updateConfig:
     # Its presets name every rule and fail to load on a bundled Oxlint that lacks one
     # (BASELINE.md, _Lint presets_).
     - ultracite
+    # alchemy 2.0.0-beta.81 imports `effect/Crypto`, which Effect 4.1 removed, so Effect stays on
+    # 4.0 until alchemy moves too (2.0.0-beta.85 requires Effect ^4.1). Upgrade them together, with
+    # the two Effect overrides below, and run apps/site/alchemy.run.test.ts.
+    - effect
+    - "@effect/platform-node"
+    - "@effect/vitest"
+    - alchemy
+    - "@alchemy.run/frontend-frameworks"
 
 # Vite+ ships its own Vite core under an alias; the override keeps every
 # transitive `vite` on that same build rather than the public package.
@@ -107,6 +112,12 @@ overrides:
   # Hold every copy on the 1.x line until a stable 2.x ships.
   "@emnapi/core": 1.11.3
   "@emnapi/runtime": 1.11.3
+  # Every Effect package must be on one version: a 4.1 package fails to load on a 4.0 `effect`
+  # (tools/ready-agent crashed), and alchemy 2.0.0-beta.81 imports `effect/Crypto`, which 4.1
+  # removed. These two come in through alchemy and @effect/platform-node with `^4.0.0` ranges, so
+  # they would otherwise resolve to the newest 4.x. Move them with the catalog's `effect`.
+  "@effect/platform-node-shared": 4.0.3
+  "@effect/sql-sqlite-do": 4.0.3
 
 peerDependencyRules:
   allowAny:

@@ -25,11 +25,13 @@
   //   (`astro sync`), which generates the `astro:content` types: without them, `vp check` fails on
   //   a fresh checkout, since the gate type-checks before any build has generated them.
   // - pnpm-workspace.yaml: the catalog adds the site's dependencies and three test-only markdown
-  //   packages. Effect (`effect`, `@effect/platform-node`, `@effect/vitest`) is at 4.1.2, ahead of
-  //   baseline, because alchemy requires ^4.1.2; take baseline's Effect bumps once they pass it.
-  //   Added blocks, each with a comment saying why: a named `astro-check` catalog holding
-  //   TypeScript 6 for tools/astro-check, `allowBuilds` for oxide, esbuild, and workerd, and
-  //   overrides holding `@emnapi/core` and `@emnapi/runtime` on 1.11.3.
+  //   packages. Added blocks, each with a comment saying why: a named `astro-check` catalog
+  //   holding TypeScript 6 for tools/astro-check, `allowBuilds` for oxide, esbuild, and workerd,
+  //   and overrides holding `@emnapi/core` and `@emnapi/runtime` on 1.11.3 and
+  //   `@effect/platform-node-shared` and `@effect/sql-sqlite-do` on the catalog's Effect version.
+  //   `updateConfig.ignoreDependencies` adds Effect and alchemy: alchemy 2.0.0-beta.81 needs
+  //   Effect 4.0, so keep the catalog's Effect on 4.0 when baseline's bumps move it to 4.1, until
+  //   alchemy is upgraded with it.
   // - vite.config.ts: `lint.extends` adds the `react` and `shadcn` presets, `jsPlugins` repeats the
   //   shadcn plugin, and `fmt.ignorePatterns` skips the blog posts (apps/site/src/blog/**), each
   //   with a comment saying why.
