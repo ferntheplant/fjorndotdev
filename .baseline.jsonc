@@ -1,0 +1,41 @@
+// The baseline commit this repo last took, for `/rebaseline`. Each local edit to a file baseline
+// also owns gets a comment here saying what changed and why: the next rebaseline reads these to
+// decide which side of a conflict to keep.
+{
+  "repo": "https://github.com/ferntheplant/baseline",
+  "ref": "main",
+  "base": "c90a7ac8c00c19c7d86c610523abc5d05d44e01f",
+  // Paths this repo owns outright, so baseline's changes to them are never taken. Add a path once
+  // the repo replaces or deletes it. pnpm-lock.yaml is regenerated after each merge instead.
+  // The site predates baseline and was moved onto it, so apps/example was never copied: the site
+  // in apps/site is the package that builds. README.md, ABSTRACT.md, and CONTEXT.md are the
+  // site's own; CONTEXT.md keeps baseline's two terms (Base, Vendored skill) beside the site's.
+  "exclude": [
+    "README.md",
+    "ABSTRACT.md",
+    "CONTEXT.md",
+    "apps/example",
+    "pnpm-lock.yaml",
+  ],
+  // Local edits:
+  // - AGENTS.md: the heading is `# fjorndotdev`, and _Where things live_ adds a README.md row for
+  //   running, deploying, and adding a good link. Keep both and take baseline's changes around them.
+  // - package.json: the root package is `@fjorndotdev/root`, and it adds `@shadcn/lint` to
+  //   devDependencies for the `shadcn` lint preset. `prepare` ends with the site's `sync:types`
+  //   (`astro sync`), which generates the `astro:content` types: without them, `vp check` fails on
+  //   a fresh checkout, since the gate type-checks before any build has generated them.
+  // - pnpm-workspace.yaml: the catalog adds the site's dependencies and three test-only markdown
+  //   packages. Effect (`effect`, `@effect/platform-node`, `@effect/vitest`) is at 4.1.2, ahead of
+  //   baseline, because alchemy requires ^4.1.2; take baseline's Effect bumps once they pass it.
+  //   Added blocks, each with a comment saying why: a named `astro-check` catalog holding
+  //   TypeScript 6 for tools/astro-check, `allowBuilds` for oxide, esbuild, and workerd, and
+  //   overrides holding `@emnapi/core` and `@emnapi/runtime` on 1.11.3.
+  // - vite.config.ts: `lint.extends` adds the `react` and `shadcn` presets, `jsPlugins` repeats the
+  //   shadcn plugin, and `fmt.ignorePatterns` skips the blog posts (apps/site/src/blog/**), each
+  //   with a comment saying why.
+  // - fallow.toml: `entry` adds apps/site/alchemy.run.ts, `dynamicallyLoaded` adds the blog posts,
+  //   and `ignoreDependencies` adds @shadcn/lint and alchemy's two runtime peers, each with a
+  //   comment saying why.
+  // - _typos.toml: allows "inted", gaming slang a post uses.
+  // - .gitignore: ignores Astro's `.astro/` types and Alchemy's `.alchemy/` state.
+}

@@ -1,3 +1,17 @@
+# Tools Vite+ does not provide. Vite+ owns Node, from `.node-version`, and pnpm, from `devEngines`
+# in package.json (BASELINE.md, _Prerequisites_).
+[settings]
+# A Node or pnpm in someone's global mise config would otherwise sit ahead of Vite+'s on PATH
+# inside this repo. Two tools managing one runtime can pick different versions for different
+# commands, and a pnpm 11 there crashes on pnpm 12's native binary when it switches to the
+# pinned version.
+disable_tools = ["node", "pnpm"]
+
 [tools]
-node = "24"
-pnpm = "latest"
+# Exact, like every version in the workspace; taze bumps only what pnpm installs, so these move
+# by hand.
+gitleaks = "8.30.1"
+# Exact: typos grows its dictionary in patch releases, so any float can fail CI on unchanged code.
+typos = "1.50.3"
+# Browser automation for agents; the `agent-browser` skill drives it and says how to set it up.
+"npm:agent-browser" = "0.38.2"

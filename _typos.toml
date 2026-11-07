@@ -1,0 +1,18 @@
+[files]
+# `.agents/`, `.forgejo/`, and `.vite-hooks/` hold prose and scripts worth checking; typos skips
+# hidden paths by default, so turning that off means excluding `.git/` by hand.
+ignore-hidden = false
+# Generated, and full of hashes and package names that read as misspellings.
+extend-exclude = [".git/", "pnpm-lock.yaml"]
+
+[default]
+extend-ignore-re = [
+  # sherif's own rule id, misspelled upstream; the correct spelling does not match the rule.
+  "non-existant-packages",
+]
+
+[default.extend-words]
+# The package-lint tool, not a misspelled "sheriff".
+sherif = "sherif"
+# Gaming slang for "intentionally thrown" a match, which acceptable-trolling.mdx defines and uses.
+inted = "inted"

@@ -1,0 +1,103 @@
+# UI Prototype
+
+Generate **several radically different UI variations** on a single route, switchable from a floating bottom bar. The user flips between variants in the browser, picks one (or steals bits from each), then throws the rest away.
+
+## When this is the right shape
+
+- "What should this page look like?"
+- "I want to see a few options for this dashboard before committing."
+- "Try a different layout for the settings screen."
+- Any time the user would otherwise spend a day picking between three vague mockups in their head.
+
+## Two sub-shapes: strongly prefer sub-shape A
+
+A UI prototype is much easier to judge when it's **butting up against the rest of the app**: real header, real sidebar, real data, real density. A throwaway route on its own is a vacuum: every variant looks fine in isolation. Default to sub-shape A whenever there's a plausible existing page to host the variants. Only reach for sub-shape B if the prototype genuinely has no nearby home.
+
+### Sub-shape A: adjustment to an existing page (preferred)
+
+The route already exists. Variants are rendered **on the same route**, gated by a `?variant=` URL search param. The existing data fetching, params, and auth all stay. Only the rendering swaps.
+
+If the prototype is for something that doesn't yet have a page but _would naturally live inside one_ (a new section of the dashboard, a new card on the settings screen, a new step in an existing flow), it's still sub-shape A. Mount the variants inside the host page.
+
+### Sub-shape B: a new page (last resort)
+
+Only use this when the thing being prototyped genuinely has no existing page to live inside (e.g. an entirely new top-level surface, or a flow that can't be embedded anywhere sensible).
+
+Create a **throwaway route**, placed and named by rule 1 in the [SKILL](SKILL.md), with the same `?variant=` pattern.
+
+In both sub-shapes the floating bottom bar is identical.
+
+## Process
+
+### 1. State the question and pick N
+
+Default to **3 variants**. More than 5 stops being radically different and starts being noise, so cap there.
+
+Write down the plan in one line, in the prototype's location or a top-of-file comment:
+
+> "Three variants of the settings page, switchable via `?variant=`, on the existing `/settings` route."
+
+This works whether the user is here to push back or not.
+
+### 2. Generate radically different variants
+
+Draft each variant. Hold each one to:
+
+- The page's purpose and the data it has access to.
+- The project's component library / styling system (TailwindCSS, shadcn, MUI, plain CSS, whatever).
+- A clear exported component name, e.g. `VariantA`, `VariantB`, `VariantC`.
+- Its own layout. Share leaf components like a `<Header>`; each variant owns everything that arranges them.
+- Real data to read, and stubs to write to: the question is "what should this look like", so any mutation goes to a stub.
+
+Each variant commits to its own **structure**: its own layout, information hierarchy, and primary affordance. Three slightly-tweaked card grids is wallpaper, not a UI prototype. If two drafts come out too similar, redo one with a named alternative structure (e.g. "a single-column timeline").
+
+### 3. Wire them together
+
+Create a single switcher component on the route:
+
+```tsx
+// pseudo-code, adapt to the project's framework
+const variant = searchParams.get("variant") ?? "A";
+return (
+  <>
+    {variant === "A" && <VariantA {...data} />}
+    {variant === "B" && <VariantB {...data} />}
+    {variant === "C" && <VariantC {...data} />}
+    <PrototypeSwitcher variants={["A", "B", "C"]} current={variant} />
+  </>
+);
+```
+
+For sub-shape A (existing page): keep all the existing data fetching above the switcher; only the rendered subtree changes per variant.
+
+For sub-shape B (new page): the throwaway route mounts the same switcher.
+
+### 4. Build the floating switcher
+
+A small fixed-position bar at the bottom-centre of the screen with three pieces:
+
+- **Left arrow**: cycles to the previous variant (wraps around).
+- **Variant label**: shows the current variant key and, if the variant exports a name, that name too. e.g. `B (Sidebar layout)`.
+- **Right arrow**: cycles forward (wraps around).
+
+Behaviour:
+
+- Clicking an arrow updates the URL search param (use the framework's router, e.g. `router.replace` on Next, `navigate` on React Router, etc) so the variant is shareable and reload-stable.
+- Keyboard: `←` and `→` arrow keys also cycle, while focus is outside `<input>`, `<textarea>`, and `[contenteditable]` elements.
+- Visually distinct from the page (e.g. high-contrast pill, subtle shadow) so it's obviously not part of the design being evaluated.
+- Hidden in production builds: gate on `process.env.NODE_ENV !== 'production'` or an equivalent check, so a stray prototype merge can't ship the bar to users.
+
+Put the switcher in a single shared component so both sub-shapes can reuse it. Locate it wherever shared UI lives in the project.
+
+### 5. Hand it over
+
+Surface the URL (and the `?variant=` keys). The user will flip through whenever they get to it. The interesting feedback is usually **"I want the header from B with the sidebar from C"**, which is the actual design they want.
+
+### 6. Capture the answer and clean up
+
+Once a variant has won, capture the answer (which variant and why), then capture the prototype the way the [SKILL](SKILL.md) describes. Fold the winner into the real code, rewriting it to production standards as you go (it was written with no tests and minimal error handling), and move the rest onto the throwaway branch:
+
+- **Sub-shape A**: fold the winner into the existing page; drop the losing variants and the switcher from main.
+- **Sub-shape B**: promote the winning variant to a real route; drop the throwaway route and the switcher from main.
+
+The full set of variants is the primary source, so it lands on the throwaway branch, where it stays findable; left in the main branch, variant components and the switcher rot fast and confuse the next reader.

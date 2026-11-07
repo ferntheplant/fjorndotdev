@@ -1,20 +1,44 @@
 {
-  "extends": "astro/tsconfigs/strict",
-  "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist"],
   "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "jsx": "react-jsx",
+    "types": [],
     "strict": true,
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "allowImportingTsExtensions": true,
+    "exactOptionalPropertyTypes": true,
+    "resolveJsonModule": true,
+    "useDefineForClassFields": true,
+    "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    "noImplicitAny": true,
-    "noImplicitOverride": true,
     "noUncheckedIndexedAccess": true,
-    "paths": {
-      "@/*": ["./*"]
-    },
-    "jsx": "react-jsx",
-    "jsxImportSource": "react",
-    "strictNullChecks": true
-  }
+    "noImplicitAny": true,
+    "noEmit": true,
+    "esModuleInterop": true
+  },
+  "include": [
+    "apps/**/*.ts",
+    "apps/**/*.tsx",
+    "apps/**/*.mts",
+    "apps/**/*.cts",
+    "packages/**/*.ts",
+    "packages/**/*.tsx",
+    "packages/**/*.mts",
+    "packages/**/*.cts",
+    "tools/**/*.ts",
+    "tools/**/*.tsx",
+    "tools/**/*.mts",
+    "tools/**/*.cts",
+    "scripts/**/*.ts",
+    "commitlint.config.ts",
+    "vite.config.ts"
+  ]
 }

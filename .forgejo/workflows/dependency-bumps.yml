@@ -1,0 +1,125 @@
+name: Dependency bumps
+
+on:
+  schedule:
+    - cron: "0 9 * * 1" # Mondays, 09:00 UTC
+  workflow_dispatch:
+
+# The job pushes and opens the PR with BUMP_BOT_TOKEN, not the workflow's own token (BASELINE.md,
+# Manual Forgejo settings, says why).
+
+# A manual run while the scheduled one is in flight would push to the same branch.
+concurrency:
+  group: ${{ github.workflow }}
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+
+    # Install wires up the repo's git hooks, and the pre-commit one needs gitleaks and typos from
+    # mise. The bot's commit skips them: CI runs gitleaks and the whole gate on the PR it opens.
+    env:
+      VP_GIT_HOOKS: "0"
+
+    steps:
+      - name: Require BUMP_BOT_TOKEN
+        env:
+          BUMP_BOT_TOKEN: ${{ secrets.BUMP_BOT_TOKEN }}
+        run: |
+          if [ -z "$BUMP_BOT_TOKEN" ]; then
+            echo "::error::Set the BUMP_BOT_TOKEN secret (BASELINE.md, Manual Forgejo settings)."
+            exit 1
+          fi
+
+      # As the bot, so the push in the last step is the bot's and the PR gets CI
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.BUMP_BOT_TOKEN }}
+
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@v1
+        with:
+          node-version-file: .node-version
+          cache: true
+
+      - name: Install dependencies
+        run: vp install --frozen-lockfile
+
+      # Minor and patch only, and exact versions included (`--include-locked`), since every
+      # version here is exact. taze skips what `updateConfig.ignoreDependencies` in
+      # pnpm-workspace.yaml holds back. `--maturity-period 7` takes only releases at least a week
+      # old, so one that is broken or compromised and pulled within days never reaches a PR; this
+      # is the bump's cooldown only, not pnpm's `minimumReleaseAge`, which would also reject the
+      # versions already locked until they aged. Actions in .forgejo/workflows are bumped by hand.
+      - name: Bump dependencies
+        run: vp exec taze minor --recursive --include-locked --maturity-period 7 --write --no-github-actions
+
+      - name: Update the lockfile
+        run: vp install --no-frozen-lockfile --lockfile-only
+
+      # Runs after the bump, so taze lists only what this PR leaves behind: the majors.
+      # It skips the held-back dependencies here too, and so does `vp outdated`, so the one that
+      # sets their pace, vite-plus, is checked against npm directly. The installed vite-plus is the
+      # catalog's: the install above was frozen, and the bump holds vite-plus back.
+      - name: Write the PR body
+        env:
+          NO_COLOR: "1"
+        run: |
+          current=$(node -p "require('./node_modules/vite-plus/package.json').version")
+          # Through pnpm: npm refuses to run where `devEngines` names another package manager.
+          latest=$(vp info vite-plus version)
+          {
+            echo "Minor and patch bumps from taze. CI runs the full gate on this PR; merge it when that passes."
+            if [ "$current" != "$latest" ]; then
+              echo
+              echo "**Vite+ $latest is out** (this repo is on $current). It is upgraded by hand, with the rest of \`updateConfig.ignoreDependencies\` in \`pnpm-workspace.yaml\`."
+            fi
+            echo
+            echo "Still behind after this PR, the majors:"
+            echo
+            echo '```'
+            vp exec taze major --recursive --include-locked --maturity-period 7
+            echo '```'
+          } > "$RUNNER_TEMP/pr-body.md"
+
+      # The bot's own token both pushes and opens the PR: Forgejo, like GitHub, starts no workflow
+      # for a change made with the workflow's own token, so the PR would get no CI.
+      - name: Open or update the PR
+        env:
+          BUMP_BOT_TOKEN: ${{ secrets.BUMP_BOT_TOKEN }}
+          BRANCH: deps/weekly-bumps
+          TITLE: "deps: bump minor and patch versions"
+        run: |
+          api="$GITHUB_SERVER_URL/api/v1"
+          repo_api="$api/repos/$GITHUB_REPOSITORY"
+          call() { curl -fsS -H "Authorization: token $BUMP_BOT_TOKEN" -H "Content-Type: application/json" "$@"; }
+          json() { python3 -c 'import json, sys; print(json.dumps(dict(zip(sys.argv[1::2], sys.argv[2::2]))))' "$@"; }
+
+          open_pr=$(call "$repo_api/pulls?state=open&limit=50" | python3 -c '
+          import json, sys
+          print(next((str(p["number"]) for p in json.load(sys.stdin) if p["head"]["ref"] == sys.argv[1]), ""))
+          ' "$BRANCH")
+
+          git add --all
+          if git diff --cached --quiet; then
+            echo "Nothing to bump."
+            if [ -n "$open_pr" ]; then
+              call -X PATCH "$repo_api/pulls/$open_pr" -d '{"state":"closed"}' > /dev/null
+              git push origin --delete "$BRANCH"
+            fi
+            exit 0
+          fi
+
+          read -r login email < <(call "$api/user" | python3 -c 'import json, sys; u = json.load(sys.stdin); print(u["login"], u["email"])')
+          git -c user.name="$login" -c user.email="$email" commit --quiet -m "$TITLE"
+          git push --force origin "HEAD:refs/heads/$BRANCH"
+
+          body=$(cat "$RUNNER_TEMP/pr-body.md")
+          if [ -n "$open_pr" ]; then
+            json title "$TITLE" body "$body" | call -X PATCH "$repo_api/pulls/$open_pr" --data @- > /dev/null
+            echo "Updated PR #$open_pr"
+          else
+            json base "$GITHUB_REF_NAME" head "$BRANCH" title "$TITLE" body "$body" \
+              | call -X POST "$repo_api/pulls" --data @- | python3 -c 'import json, sys; print("Opened PR #%s" % json.load(sys.stdin)["number"])'
+          fi

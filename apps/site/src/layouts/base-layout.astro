@@ -1,0 +1,93 @@
+---
+import "#src/styles/global.css";
+
+export interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  type?: "website" | "article";
+  pubDate?: Date;
+}
+
+const { title, description, ogImage, type = "website", pubDate } = Astro.props;
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": type === "article" ? "BlogPosting" : "WebSite",
+  description,
+  headline: title,
+  name: title,
+  url: canonicalUrl,
+  ...(ogImage && { image: ogImage }),
+  ...(pubDate && { datePublished: pubDate.toISOString() }),
+};
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5"
+    />
+    {
+      /*
+        Runs before any CSS so the first paint already has the right theme.
+        Setting color-scheme inline also themes the browser canvas and
+        scrollbars before the stylesheet arrives.
+      */
+    }
+    <script is:inline>
+      (() => {
+        let theme;
+        try {
+          theme = localStorage.getItem("theme");
+        } catch {
+          // Storage can be unavailable (e.g. private mode); fall back to the system theme.
+        }
+        if (theme !== "light" && theme !== "dark") {
+          theme = matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+        }
+        const root = document.documentElement;
+        root.classList.toggle("dark", theme === "dark");
+        root.style.colorScheme = theme;
+      })();
+    </script>
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" href="/favicon.svg" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:site_name" content="Hi This Is Fjorn" />
+    <meta property="og:title" content={title} />
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:description" content={description} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+
+    <!-- Microdata -->
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify(structuredData)}
+    />
+  </head>
+  <body
+    class="bg-background text-foreground m-auto max-w-[720px] p-4 pt-10 text-left font-mono text-base leading-relaxed break-words transition-colors"
+  >
+    <slot />
+  </body>
+</html>

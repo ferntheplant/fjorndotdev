@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+# A new push to a PR supersedes the run already in flight for it. Pushes to main are keyed by
+# commit instead, so every commit that lands there gets a complete run. The workflow name keeps
+# a second workflow from cancelling this one's runs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          # commitlint walks the range between base and head, so the shallow
+          # default clone is not enough.
+          fetch-depth: 0
+
+      # Only what CI runs; setup-vp below provides Node.
+      - name: Set up gitleaks and typos
+        uses: jdx/mise-action@v5
+        with:
+          install_args: gitleaks typos
+
+      - name: Scan for secrets
+        run: gitleaks git --redact --no-banner
+
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@v1
+        with:
+          node-version-file: .node-version
+          cache: true
+
+      - name: Install dependencies
+        run: vp install --frozen-lockfile
+
+      - name: Validate workspace
+        run: vp run ready
+
+      - name: Validate commit messages
+        if: github.event_name == 'pull_request'
+        run: vp exec commitlint --from "${{ github.event.pull_request.base.sha }}" --to "${{ github.event.pull_request.head.sha }}" --verbose
+
+      # Squash merges take the PR title as the commit subject, so the title has
+      # to satisfy the same rules the commits do.
+      - name: Validate PR title
+        if: github.event_name == 'pull_request'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: printf '%s\n' "$PR_TITLE" | vp exec commitlint

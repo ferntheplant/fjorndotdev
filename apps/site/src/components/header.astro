@@ -1,0 +1,55 @@
+---
+import ThemeToggle from "#src/components/theme-toggle.astro";
+import Link from "#src/components/link.astro";
+
+const navItems = [
+  { href: "/", label: "Home" },
+  { href: "/blog/", label: "Blog" },
+  { href: "/good/", label: "Good" },
+];
+---
+
+<header class="flex flex-row justify-between pb-8">
+  <div class="flex flex-col items-start justify-start gap-2">
+    <a href="/" class="hover:no-underline">
+      <h1 class="text-4xl font-extrabold">Hi This Is Fjorn</h1>
+    </a>
+    <nav>
+      <p>
+        {
+          navItems.map((item) => (
+            <Link class="nav-link mr-4" href={item.href} dataHref={item.href}>
+              {item.label}
+            </Link>
+          ))
+        }
+      </p>
+    </nav>
+  </div>
+
+  <ThemeToggle size={24} className="!p-0" />
+</header>
+
+<script>
+  // Underline the nav link for the current page; every post counts as the blog.
+  const updateActiveNav = () => {
+    const currentPath = window.location.pathname;
+    for (const link of document.querySelectorAll<HTMLElement>(".nav-link")) {
+      const { href } = link.dataset;
+      link.classList.toggle(
+        "!border-b-[6px]",
+        href === currentPath ||
+          (href === "/blog/" && currentPath.startsWith("/blog/"))
+      );
+    }
+  };
+
+  // Update on page load
+  updateActiveNav();
+
+  // Update on navigation (for SPA-like behavior)
+  window.addEventListener("popstate", updateActiveNav);
+
+  // Listen for navigation events (useful if you implement client-side routing later)
+  document.addEventListener("astro:page-load", updateActiveNav);
+</script>

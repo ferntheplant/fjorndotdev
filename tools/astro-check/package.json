@@ -1,0 +1,14 @@
+{
+  "name": "@fjorndotdev/astro-check",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "astro-check --root ../../apps/site"
+  },
+  "devDependencies": {
+    "@astrojs/check": "catalog:",
+    "astro": "catalog:",
+    "typescript": "catalog:astro-check"
+  }
+}

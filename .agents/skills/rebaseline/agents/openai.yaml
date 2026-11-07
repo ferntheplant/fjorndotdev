@@ -1,0 +1,6 @@
+interface:
+  display_name: "Rebaseline"
+  short_description: "Merge upstream changes into copied files, keeping local edits"
+
+policy:
+  allow_implicit_invocation: false

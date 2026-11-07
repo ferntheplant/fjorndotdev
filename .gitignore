@@ -1,27 +1,55 @@
-# build output
-dist/
-# generated types
-.astro/
-
-# dependencies
-node_modules/
-
-# logs
+# Logs
+logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
+node_modules
+.vite
+coverage
+dist
+dist-ssr
+build
+*.local
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
 
-# environment variables
+# dotenv environment variable files
 .env
-.env.production
+.env.*
+!.env.example
 
-# macOS-specific files
+# Editor directories and files
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea
 .DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# jetbrains setting folder
-.idea/
+# A symlink to `AGENTS.md`, created on install by `scripts/link-agents.ts`; its header says why
+# it is not committed.
+CLAUDE.md
 
-# cloudflare
+# AI agent state. `.claude/` is a symlink to `.agents/`, so git sees these paths
+# under `.agents/`; both spellings are listed so either resolution is covered.
+.agents/worktrees/
+.agents/settings.local.json
+.claude/worktrees/
+.claude/settings.local.json
+
+# fallow cache
+.fallow/
+.vitest/
+
+# Astro's generated types, and Alchemy's local deploy state.
+.astro/
 .alchemy/

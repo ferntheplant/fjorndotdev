@@ -1,0 +1,40 @@
+---
+import BaseLayout from "#src/layouts/base-layout.astro";
+import Header from "#src/components/header.astro";
+import ReadingListIcon from "#src/components/reading-list-icon.astro";
+import Link from "#src/components/link.astro";
+import { formatCalendarDay } from "#src/lib/utils.ts";
+import { getCollection } from "astro:content";
+
+const title = "Good | Hi This Is Fjorn";
+const description = "Cool stuff I've consumed";
+
+const goodLinks = await getCollection("good");
+const readingList = goodLinks.toSorted((a, b) =>
+  b.data.date.localeCompare(a.data.date)
+);
+---
+
+<BaseLayout title={title} description={description}>
+  <Header />
+  <main class="border-primary border p-8">
+    <p class="pb-6">
+      I consume <em>a lot</em> of content on the internet. Not much of it is good.
+      I'll try to add the good stuff to this list.
+    </p>
+
+    <ul class="flex list-none flex-col space-y-4">
+      {
+        readingList.map((item) => (
+          <li class="flex flex-row items-center gap-4">
+            <ReadingListIcon type={item.data.type} />
+            <time datetime={item.data.date} class="opacity-70">
+              {formatCalendarDay(item.data.date)}
+            </time>
+            <Link href={item.data.url}>{item.data.title}</Link>
+          </li>
+        ))
+      }
+    </ul>
+  </main>
+</BaseLayout>

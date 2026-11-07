@@ -1,0 +1,49 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Queue deploys instead of cancelling one mid-upload; the last merge always wins.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # Only what the gate runs; setup-vp below provides Node.
+      - name: Set up typos
+        uses: jdx/mise-action@v5
+        with:
+          install_args: typos
+
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@v1
+        with:
+          node-version-file: .node-version
+          cache: true
+
+      - name: Install dependencies
+        run: vp install --frozen-lockfile
+
+      # The full gate, including the site's build, so that a push to main that skipped CI still
+      # cannot deploy a broken site.
+      - name: Validate workspace
+        run: vp run ready
+
+      # Alchemy reads the token and account from the environment. Both are Actions secrets on the
+      # Forgejo repo (README.md, _Deploying_).
+      - name: Deploy to Cloudflare
+        working-directory: apps/site
+        run: vp run deploy:prod --yes
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

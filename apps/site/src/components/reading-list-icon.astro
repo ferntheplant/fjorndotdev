@@ -1,0 +1,21 @@
+---
+import { FileText, BookOpen, Youtube, Code } from "@lucide/astro";
+import type { GoodType } from "#src/lib/good.ts";
+
+interface Props {
+  type: GoodType;
+}
+
+const { type } = Astro.props;
+
+const iconMap: Record<GoodType, typeof FileText> = {
+  article: FileText,
+  book: BookOpen,
+  code: Code,
+  youtube: Youtube,
+};
+
+const IconComponent = iconMap[type];
+---
+
+<IconComponent class="stroke-primary" />

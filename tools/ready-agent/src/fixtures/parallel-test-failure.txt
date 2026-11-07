@@ -1,0 +1,82 @@
+[@baseline/root#ready] $ sherif ◉ cache hit, replaying
+── [@baseline/root#ready] ──
+
+✓ No issues found
+
+[@baseline/root#ready] $ typos ○ cache miss: 'apps/example/src/index.test.ts' modified, executing
+
+[@baseline/root#ready] $ vp check ○ cache miss: 'tools/ready-agent/src/condense.test.ts' modified, executing
+── [@baseline/root#ready] ──
+pass: All 38 files are correctly formatted (320ms, 10 threads)
+pass: Found no warnings, lint errors, or type errors in 10 files (364ms, 10 threads)
+
+[@baseline/example#test] ~/apps/example$ vp test run --reporter=minimal ○ cache miss: 'apps/example/src/index.test.ts' modified, executing
+[@baseline/ready-agent#test] ~/tools/ready-agent$ vp test run --reporter=minimal ○ cache miss: 'tools/ready-agent/src/condense.test.ts' modified, executing
+── [@baseline/example#test] ──
+
+ RUN  v5.0.1 /repo/apps/example
+
+ ❯ src/index.test.ts (1 test | 1 failed) 5ms
+   × greets by name 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/index.test.ts > greets by name
+AssertionError: expected 'Hello, world!' to be 'Hello, moon!' // Object.is equality
+
+Expected: "Hello, moon!"
+Received: "Hello, world!"
+
+ ❯ src/index.test.ts:6:26
+      4|
+      5| test("greets by name", () => {
+      6|   expect(greet("world")).toBe("Hello, moon!");
+       |                          ^
+      7| });
+      8|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  21:21:02
+   Duration  122ms (transform 54%, import 23%, tests 15%, worker 8%)
+
+
+── [@baseline/ready-agent#test] ──
+
+ RUN  v5.0.1 /repo/tools/ready-agent
+
+
+ Test Files  2 passed (2)
+      Tests  9 passed (9)
+   Start at  21:21:02
+   Duration  124ms (transform 64%, import 22%, worker 7%, tests 7%)
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    Vite+ Task Runner • Execution Summary
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Statistics:   5 tasks • 1 cache hits • 4 cache misses • 2 failed
+Performance:  20% cache hit rate, 94ms saved in total
+
+Task Details:
+────────────────────────────────────────────────
+  [1] @baseline/root#ready: $ sherif ✓
+      → Cache hit - output replayed - 94ms saved
+  ·······················································
+  [2] @baseline/root#ready: $ typos ✓
+      → Cache miss: 'apps/example/src/index.test.ts' modified
+  ·······················································
+  [3] @baseline/root#ready: $ vp check ✓
+      → Cache miss: 'tools/ready-agent/src/condense.test.ts' modified
+  ·······················································
+  [4] @baseline/example#test: ~/apps/example$ vp test run --reporter=minimal ✗ (exit code: 1)
+      → Cache miss: 'apps/example/src/index.test.ts' modified
+  ·······················································
+  [5] @baseline/ready-agent#test: ~/tools/ready-agent$ vp test run --reporter=minimal ✗ (exit code: 137)
+      → Cache miss: 'tools/ready-agent/src/condense.test.ts' modified
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
