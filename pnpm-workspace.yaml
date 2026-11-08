@@ -94,10 +94,13 @@ updateConfig:
     # (BASELINE.md, _Lint presets_).
     - ultracite
     # alchemy 2.0.0-beta.81 imports `effect/Crypto`, which Effect 4.1 removed, so Effect stays on
-    # 4.0 until alchemy moves too (2.0.0-beta.85 requires Effect ^4.1). Upgrade them together, with
-    # the two Effect overrides below, and run apps/site/alchemy.run.test.ts.
+    # 4.0 until alchemy moves too (2.0.0-beta.85 requires Effect ^4.1). Upgrade them together, and
+    # run apps/site/alchemy.run.test.ts. taze also bumps `overrides`, so the two Effect overrides
+    # are listed here as well.
     - effect
     - "@effect/platform-node"
+    - "@effect/platform-node-shared"
+    - "@effect/sql-sqlite-do"
     - "@effect/vitest"
     - alchemy
     - "@alchemy.run/frontend-frameworks"
